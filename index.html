@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>🌹 Emoji Pixel Render High Detail</title>
+  <title>🌹 Pixel Emoji Render (Base64)</title>
   <style>
     body {
       background: #ffe6f0;
@@ -28,7 +28,7 @@
   </style>
 </head>
 <body>
-  <h1>🌹 Pixel Emoji Render (256x256)</h1>
+  <h1>🌹 Pixel Emoji Render (Base64)</h1>
   <canvas id="canvas" width="256" height="256"></canvas>
 
   <script>
@@ -36,10 +36,8 @@
     const ctx = canvas.getContext("2d");
 
     const img = new Image();
-    img.crossOrigin = "anonymous";
-
-    // ใช้ emoji 🌹 แบบ 256x256 px จาก Twemoji CDN
-    img.src = "https://twemoji.maxcdn.com/v/latest/256x256/1f339.png";
+    // base64 ของ emoji 🌹 ขนาด 256x256 px จาก twemoji
+    img.src = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQAAAAEACAIAAADTED8xAAAABmJLR0QA/wD/AP+gvaeTAAABFklEQVR42u3RAQEAAAjDMO5fNCAhqBTaDRMBIkSJEiRIkyjwDmAAr2gjEaBHAAD06TSIARAgBgAlB0BIQAFJtAkhAAkD4KIQAF7RBCUQB1CwJEAAYAJQdASSAAUm0CSFECQCfAAkkAA9ukGXAADA+hkhAAUM8JIRAGIwBJEABCUABCTQAyQAEJQAGJRBK7AAUm8CSFECQCQ/AgkAAeLGBaUAECYAhgALpZBJQCAoABNdyxIAJGABCA8ABTUAEFAAEpzAJhAwL9gVbjxQGiYEEHfCacIlvCQQ4JhV46Hy8HgCAAAAAElFTkSuQmCC";
 
     img.onload = () => {
       const tempCanvas = document.createElement("canvas");
@@ -58,7 +56,7 @@
           const g = imgData[i + 1];
           const b = imgData[i + 2];
           const a = imgData[i + 3];
-          if (a > 10) { // กรอง pixel โปร่งใสน้อยกว่า 10 ออก
+          if (a > 10) {
             pixels.push({ x, y, color: `rgba(${r},${g},${b},${a / 255})` });
           }
         }
@@ -75,7 +73,6 @@
           else draw();
         }
       }
-
       draw();
     };
   </script>
