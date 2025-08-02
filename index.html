@@ -1,295 +1,122 @@
 <!DOCTYPE html>
-<html lang="th">
+<html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>ดอกกุหลาบ Pixel Art 128x128 พร้อมหัวใจ</title>
-<style>
-  body {
-    margin:0; padding:0;
-    background: #111;
-    display: flex; justify-content: center; align-items: center;
-    height: 100vh;
-    user-select: none;
-    overflow: hidden;
-  }
-  canvas {
-    image-rendering: pixelated;
-    border: 5px solid #ff1e7f;
-    border-radius: 20px;
-    background: #222;
-    box-shadow: 0 0 25px #ff1e7faa;
-  }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>For My Love</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: 'Arial', sans-serif;
+        }
+        
+        #heart-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.2;
+        }
+        
+        #canvas {
+            border: 1px solid #333;
+            background-color: #111;
+        }
+        
+        #message {
+            position: absolute;
+            color: #ff69b4;
+            font-size: 3em;
+            text-align: center;
+            opacity: 0;
+            transition: opacity 2s;
+            text-shadow: 0 0 10px #fff, 0 0 20px #ff69b4, 0 0 30px #ff69b4;
+        }
+        
+        .heart {
+            position: absolute;
+            color: #ff3366;
+            animation: float 6s ease-in-out infinite;
+            opacity: 0.7;
+        }
+        
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0) rotate(0deg);
+            }
+            50% {
+                transform: translateY(-20px) rotate(5deg);
+            }
+        }
+    </style>
 </head>
 <body>
-<canvas id="canvas" width="512" height="512"></canvas>
+    <div id="heart-bg"></div>
+    <canvas id="canvas" width="800" height="600"></canvas>
+    <div id="message">Dear my girlfriend</div>
 
-<script>
-const PIXEL_SIZE = 4;
-const WIDTH = 128;
-const HEIGHT = 128;
-const canvas = document.getElementById('canvas');
-const ctx = canvas.getContext('2d');
-ctx.imageSmoothingEnabled = false;
-
-canvas.style.width = canvas.width + 'px';
-canvas.style.height = canvas.height + 'px';
-
-// === ข้อมูล pixel ดอกกุหลาบ 128x128 (simplified & stylized) ===
-// ผมใช้ฟังก์ชันเกลี่ยสีหลายจุด และเพิ่ม shape เป็น petal ซ้อนๆ เพื่อให้เห็นเป็นดอกกุหลาบ
-
-// กำหนดสีหลัก
-const COLORS = {
-  darkRed: [150, 20, 30],
-  red: [220, 40, 60],
-  pink: [255, 110, 140],
-  lightPink: [255, 160, 170],
-  green: [20, 100, 30],
-  darkGreen: [10, 50, 20],
-  transparent: null,
-};
-
-// ฟังก์ชันช่วยคำนวณระยะ Euclidean
-function dist(x1,y1,x2,y2) {
-  return Math.sqrt((x1-x2)**2 + (y1-y2)**2);
-}
-
-// สร้าง pixel array ดอกกุหลาบ
-let rosePixels = [];
-
-// กำหนดจุดศูนย์กลางดอกกุหลาบ
-const cx = WIDTH/2;
-const cy = HEIGHT/2;
-
-// ฟังก์ชันวาด petal รูปวงรีแนวนอน
-function isInPetal(x, y, centerX, centerY, radiusX, radiusY, angle) {
-  // หมุนพิกัด x,y ตามมุม angle
-  let cosA = Math.cos(angle);
-  let sinA = Math.sin(angle);
-  let dx = x - centerX;
-  let dy = y - centerY;
-  let rx = cosA * dx + sinA * dy;
-  let ry = -sinA * dx + cosA * dy;
-
-  return (rx*rx)/(radiusX*radiusX) + (ry*ry)/(radiusY*radiusY) <= 1;
-}
-
-// วาดกลีบดอก (petal) 6 กลีบรอบๆ จุดกลาง
-for(let y=0; y<HEIGHT; y++) {
-  for(let x=0; x<WIDTH; x++) {
-    let color = COLORS.transparent;
-    let d = dist(x,y,cx,cy);
-
-    // ใบฐาน
-    if(d > 48 && d < 60 && x > cx - 30 && x < cx + 30 && y > cy + 40) {
-      color = COLORS.darkGreen;
-    } else if(d > 40 && d < 60 && y > cy + 30) {
-      color = COLORS.green;
-    }
-
-    // กลีบดอก 6 กลีบ ใช้ ellipse หมุนรอบดอก
-    const petals = 6;
-    for(let i=0; i<petals; i++) {
-      let angle = (i * 2 * Math.PI) / petals;
-      if(isInPetal(x,y,cx,cy, 30, 60, angle)) {
-        // ไล่สีตามระยะจากกลางกลีบ petal
-        let distCenterPetal = dist(x,y, cx + 30*Math.cos(angle), cy + 30*Math.sin(angle));
-        if(distCenterPetal < 15) color = COLORS.darkRed;
-        else if(distCenterPetal < 25) color = COLORS.red;
-        else color = COLORS.pink;
-      }
-    }
-
-    // ใจกลางดอก กึ่งกลางวงกลมเล็กสีแดงเข้ม
-    if(d < 12) {
-      if(d < 6) color = COLORS.darkRed;
-      else color = COLORS.red;
-    }
-
-    if(color !== COLORS.transparent) {
-      rosePixels.push({x, y, color: {r: color[0], g: color[1], b: color[2], a:255}});
-    }
-  }
-}
-
-// หัวใจ pixel art 6x6 (เหมือนเดิม)
-const heartPattern = [
-  [0,1,1,0,0,0],
-  [1,1,1,1,0,0],
-  [1,1,1,1,1,0],
-  [0,1,1,1,1,0],
-  [0,0,1,1,0,0],
-  [0,0,0,0,0,0]
-];
-
-class Heart {
-  constructor(x,y) {
-    this.x = x;
-    this.y = y;
-    this.size = 6;
-    this.pixelSize = PIXEL_SIZE;
-    this.offsetX = 0;
-    this.offsetY = 0;
-    this.vx = (Math.random()*1-0.5)*0.5;
-    this.vy = (Math.random()*1-0.5)*0.5;
-    this.broken = false;
-    this.particles = [];
-  }
-
-  draw(ctx) {
-    if(this.broken) {
-      this.particles.forEach(p=>{
-        p.update();
-        p.draw(ctx);
-      });
-      this.particles = this.particles.filter(p => p.alpha > 0);
-      return;
-    }
-
-    ctx.fillStyle = '#ff6699';
-    for(let py=0; py<this.size; py++) {
-      for(let px=0; px<this.size; px++) {
-        if(heartPattern[py][px]) {
-          const drawX = (this.x + px + this.offsetX) * this.pixelSize;
-          const drawY = (this.y + py + this.offsetY) * this.pixelSize;
-          ctx.fillRect(drawX, drawY, this.pixelSize, this.pixelSize);
+    <script>
+        // สร้างพื้นหลังหัวใจ
+        function createHearts() {
+            const heartBg = document.getElementById('heart-bg');
+            for (let i = 0; i < 50; i++) {
+                const heart = document.createElement('div');
+                heart.innerHTML = '❤';
+                heart.className = 'heart';
+                heart.style.left = Math.random() * 100 + 'vw';
+                heart.style.top = Math.random() * 100 + 'vh';
+                heart.style.fontSize = (Math.random() * 20 + 10) + 'px';
+                heart.style.animationDelay = Math.random() * 6 + 's';
+                heartBg.appendChild(heart);
+            }
         }
-      }
-    }
-  }
-
-  update() {
-    if(this.broken) {
-      this.particles.forEach(p=>p.update());
-      this.particles = this.particles.filter(p => p.alpha > 0);
-      return;
-    }
-
-    this.offsetX += this.vx;
-    this.offsetY += this.vy;
-
-    if(this.offsetX > 1 || this.offsetX < -1) this.vx *= -1;
-    if(this.offsetY > 1 || this.offsetY < -1) this.vy *= -1;
-  }
-
-  breakApart() {
-    if(this.broken) return;
-    this.broken = true;
-    for(let py=0; py<this.size; py++) {
-      for(let px=0; px<this.size; px++) {
-        if(heartPattern[py][px]) {
-          this.particles.push(new Particle(
-            (this.x + px) * this.pixelSize,
-            (this.y + py) * this.pixelSize,
-            this.pixelSize
-          ));
+        
+        // ข้อมูลดอกกุหลาบ (ตัวอย่างข้อมูล - คุณควรแทนที่ด้วยข้อมูลจริงจากภาพของคุณ)
+        const roseData = [];
+        // สร้างข้อมูลตัวอย่าง (ในความเป็นจริงคุณควรใช้ข้อมูลพิกเซลจากภาพจริง)
+        for (let i = 0; i < 773; i++) {
+            for (let j = 0; j < 600; j++) {
+                if (Math.random() > 0.99) {
+                    roseData.push({x: i, y: j, color: `hsl(${Math.random() * 60 + 330}, 100%, 50%)`});
+                }
+            }
         }
-      }
-    }
-  }
-
-  isPointInside(px, py) {
-    const localX = Math.floor((px/this.pixelSize) - this.x - this.offsetX);
-    const localY = Math.floor((py/this.pixelSize) - this.y - this.offsetY);
-    if(localX < 0 || localX >= this.size) return false;
-    if(localY < 0 || localY >= this.size) return false;
-    return heartPattern[localY][localX] === 1;
-  }
-}
-
-class Particle {
-  constructor(x,y,size) {
-    this.x = x + Math.random()*size;
-    this.y = y + Math.random()*size;
-    this.size = size;
-    this.vx = (Math.random()-0.5)*3;
-    this.vy = (Math.random()-0.5)*3;
-    this.alpha = 1;
-    this.gravity = 0.05;
-  }
-
-  update() {
-    this.x += this.vx;
-    this.y += this.vy;
-    this.vy += this.gravity;
-    this.alpha -= 0.03;
-    if(this.alpha < 0) this.alpha = 0;
-  }
-
-  draw(ctx) {
-    ctx.fillStyle = `rgba(255,102,153,${this.alpha.toFixed(2)})`;
-    ctx.fillRect(this.x, this.y, this.size, this.size);
-  }
-}
-
-// สร้างหัวใจ 4 ดวง รอบดอกกุหลาบ
-const hearts = [];
-const centerX = WIDTH / 2;
-const centerY = HEIGHT / 2;
-const heartOffsets = [
-  [-22, -22],
-  [22, -22],
-  [-22, 22],
-  [22, 22]
-];
-heartOffsets.forEach(offset => {
-  hearts.push(new Heart(centerX + offset[0], centerY + offset[1]));
-});
-
-let roseIndex = 0;
-let drawnPixels = new Set();
-
-function draw() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  // วาดหัวใจ
-  hearts.forEach(h => {
-    h.update();
-    h.draw(ctx);
-  });
-
-  // วาดดอกกุหลาบทีละนิด เก็บ pixel ที่วาดแล้วให้ไม่หาย
-  let pixelsDrawnThisFrame = 0;
-  while(pixelsDrawnThisFrame < 10 && roseIndex < rosePixels.length) {
-    const p = rosePixels[roseIndex];
-    const key = `${p.x},${p.y}`;
-    if(!drawnPixels.has(key)) {
-      ctx.fillStyle = `rgba(${p.color.r},${p.color.g},${p.color.b},${p.color.a/255})`;
-      ctx.fillRect(p.x * PIXEL_SIZE, p.y * PIXEL_SIZE, PIXEL_SIZE, PIXEL_SIZE);
-      drawnPixels.add(key);
-      pixelsDrawnThisFrame++;
-    }
-    roseIndex++;
-  }
-
-  // วาด pixel ที่วาดไปแล้วทั้งหมด (เพื่อให้ค้าง)
-  drawnPixels.forEach(key => {
-    const [x, y] = key.split(',').map(Number);
-    const p = rosePixels.find(px => px.x === x && px.y === y);
-    if(p) {
-      ctx.fillStyle = `rgba(${p.color.r},${p.color.g},${p.color.b},${p.color.a/255})`;
-      ctx.fillRect(p.x * PIXEL_SIZE, p.y * PIXEL_SIZE, PIXEL_SIZE, PIXEL_SIZE);
-    }
-  });
-
-  requestAnimationFrame(draw);
-}
-draw();
-
-canvas.addEventListener('click', (e) => {
-  const rect = canvas.getBoundingClientRect();
-  const clickX = (e.clientX - rect.left);
-  const clickY = (e.clientY - rect.top);
-
-  for(let i=hearts.length-1; i>=0; i--) {
-    const h = hearts[i];
-    if(h.isPointInside(clickX, clickY)) {
-      h.breakApart();
-      break;
-    }
-  }
-});
-</script>
+        
+        // วาดดอกกุหลาบแบบทีละพิกเซล
+        function drawRose() {
+            const canvas = document.getElementById('canvas');
+            const ctx = canvas.getContext('2d');
+            let index = 0;
+            
+            function drawPixel() {
+                if (index < roseData.length) {
+                    const pixel = roseData[index];
+                    ctx.fillStyle = pixel.color;
+                    ctx.fillRect(pixel.x, pixel.y, 1, 1);
+                    index++;
+                    setTimeout(drawPixel, 1); // ความเร็วในการวาด
+                } else {
+                    // แสดงข้อความเมื่อวาดเสร็จ
+                    document.getElementById('message').style.opacity = 1;
+                }
+            }
+            
+            drawPixel();
+        }
+        
+        // เริ่มอนิเมชั่นเมื่อหน้าเว็บโหลดเสร็จ
+        window.onload = function() {
+            createHearts();
+            setTimeout(drawRose, 1000);
+        };
+    </script>
 </body>
 </html>
