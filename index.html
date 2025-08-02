@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>ดอกกุหลาบ 128bit + หัวใจ 4 ดวงขยับ + แตกเมื่อกด</title>
+<title>ดอกกุหลาบ 128bit สวย พร้อมหัวใจ 4 ดวง ขยับ แตกได้</title>
 <style>
   body {
     margin:0; padding:0;
@@ -15,9 +15,10 @@
   }
   canvas {
     image-rendering: pixelated;
-    border: 4px solid #ff007f;
-    border-radius: 15px;
+    border: 5px solid #ff1e7f;
+    border-radius: 20px;
     background: #222;
+    box-shadow: 0 0 20px #ff1e7faa;
   }
 </style>
 </head>
@@ -25,48 +26,49 @@
 <canvas id="canvas" width="512" height="512"></canvas>
 
 <script>
-// ขนาด canvas และ pixel art
-const PIXEL_SIZE = 4;  // ขยาย 4 เท่า
+const PIXEL_SIZE = 4;
 const WIDTH = 128;
 const HEIGHT = 128;
 
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
+ctx.imageSmoothingEnabled = false;
 
 canvas.style.width = canvas.width + 'px';
 canvas.style.height = canvas.height + 'px';
 
-ctx.imageSmoothingEnabled = false;
-
-// ดอกกุหลาบ pixel art (128x128) สร้างเป็นวงกลมไล่สีแบบง่ายๆ (แทน pixel art จริง)
+// ฟังก์ชันไล่สีดอกกุหลาบแบบมี layering และไล่โทนสีละเอียดขึ้น
 function getRoseColor(x, y) {
-  const cx = WIDTH / 2;
-  const cy = HEIGHT / 2;
+  const cx = WIDTH/2;
+  const cy = HEIGHT/2;
   const dx = x - cx;
   const dy = y - cy;
   const dist = Math.sqrt(dx*dx + dy*dy);
 
-  if(dist > 50) return null; // นอกวงกลมดอกกุหลาบ
+  if(dist > 55) return null;
 
-  if(dist < 15) return {r: 178, g: 34, b: 34, a:255}; // แดงเข้ม
-  else if(dist < 30) return {r: 255, g: 105, b: 180, a:255}; // ชมพู
-  else if(dist < 45) return {r: 216, g: 112, b: 147, a:255}; // ชมพูเข้ม
-  else return null;
+  // โทนสีหลายเลเยอร์ ไล่สีลึกลงไป
+  if(dist < 10) return {r: 190, g: 30, b: 45, a:255};         // แดงเข้มมาก
+  if(dist < 20) return {r: 230, g: 40, b: 70, a:255};         // แดงสด
+  if(dist < 30) return {r: 255, g: 80, b: 130, a:255};        // ชมพูสดใส
+  if(dist < 40) return {r: 235, g: 120, b: 150, a:255};       // ชมพูอมม่วง
+  if(dist < 50) return {r: 215, g: 70, b: 120, a:255};        // ชมพูเข้ม
+  return null;
 }
 
+// สร้าง array pixel ของดอกกุหลาบ
 let rosePixels = [];
 for(let y=0; y<HEIGHT; y++) {
   for(let x=0; x<WIDTH; x++) {
-    const c = getRoseColor(x,y);
+    let c = getRoseColor(x,y);
     if(c) rosePixels.push({x,y,color:c});
   }
 }
 
-// วาดดอกกุหลาบครบแล้วเก็บภาพไว้ไม่หาย
-let roseIndex = 0;
-let roseComplete = false;
+// เก็บ pixel ที่วาดแล้ว (วาดค้างไว้ไม่หาย)
+let drawnPixels = new Set();
 
-// หัวใจ pixel art ขนาด 6x6 pixel (2x2 block จริงบน canvas เพราะ pixel ขยาย 4 เท่า)
+// วาดหัวใจ pixel art ขนาด 6x6 pixel
 const heartPattern = [
   [0,1,1,0,0,0],
   [1,1,1,1,0,0],
@@ -80,13 +82,13 @@ class Heart {
   constructor(x,y) {
     this.x = x;
     this.y = y;
-    this.size = 6; 
+    this.size = 6;
     this.pixelSize = PIXEL_SIZE;
-    this.offsetX = 0; 
+    this.offsetX = 0;
     this.offsetY = 0;
     this.vx = (Math.random()*1-0.5)*0.5;
     this.vy = (Math.random()*1-0.5)*0.5;
-    this.broken = false; 
+    this.broken = false;
     this.particles = [];
   }
 
@@ -176,48 +178,54 @@ class Particle {
   }
 }
 
-// สร้างหัวใจแค่ 4 ดวงรอบดอกกุหลาบ
+// สร้างหัวใจ 4 ดวงรอบดอกกุหลาบ
 const hearts = [];
 const centerX = WIDTH / 2;
 const centerY = HEIGHT / 2;
 const heartOffsets = [
-  [-20, -20],
-  [20, -20],
-  [-20, 20],
-  [20, 20]
+  [-22, -22],
+  [22, -22],
+  [-22, 22],
+  [22, 22]
 ];
 heartOffsets.forEach(offset => {
   hearts.push(new Heart(centerX + offset[0], centerY + offset[1]));
 });
 
-function draw() {
-  ctx.clearRect(0,0,canvas.width, canvas.height);
+let roseIndex = 0;
 
-  // วาดหัวใจขยับ
+function draw() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // วาดหัวใจ
   hearts.forEach(h => {
     h.update();
     h.draw(ctx);
   });
 
-  // วาดดอกกุหลาบทีละบิต
-  if(!roseComplete) {
-    for(let i=0; i<5 && roseIndex < rosePixels.length; i++) {
-      const p = rosePixels[roseIndex];
+  // วาดดอกกุหลาบทีละบิตและเก็บ pixel ที่วาดแล้ว
+  let pixelsDrawnThisFrame = 0;
+  while(pixelsDrawnThisFrame < 10 && roseIndex < rosePixels.length) {
+    const p = rosePixels[roseIndex];
+    const key = `${p.x},${p.y}`;
+    if(!drawnPixels.has(key)) {
       ctx.fillStyle = `rgba(${p.color.r},${p.color.g},${p.color.b},${p.color.a/255})`;
       ctx.fillRect(p.x * PIXEL_SIZE, p.y * PIXEL_SIZE, PIXEL_SIZE, PIXEL_SIZE);
-      roseIndex++;
+      drawnPixels.add(key);
+      pixelsDrawnThisFrame++;
     }
-    if(roseIndex >= rosePixels.length) {
-      roseComplete = true;
-    }
-  } else {
-    // วาดดอกกุหลาบเต็มที่เก็บไว้ไม่หาย
-    for(let i=0; i < rosePixels.length; i++) {
-      const p = rosePixels[i];
-      ctx.fillStyle = `rgba(${p.color.r},${p.color.g},${p.color.b},${p.color.a/255})`;
-      ctx.fillRect(p.x * PIXEL_SIZE, p.y * PIXEL_SIZE, PIXEL_SIZE, PIXEL_SIZE);
-    }
+    roseIndex++;
   }
+
+  // วาด pixel ที่วาดไปแล้วทั้งหมดค้างไว้ (ไม่ให้หาย)
+  drawnPixels.forEach(key => {
+    const [x, y] = key.split(',').map(Number);
+    const p = rosePixels.find(px => px.x === x && px.y === y);
+    if(p) {
+      ctx.fillStyle = `rgba(${p.color.r},${p.color.g},${p.color.b},${p.color.a/255})`;
+      ctx.fillRect(p.x * PIXEL_SIZE, p.y * PIXEL_SIZE, PIXEL_SIZE, PIXEL_SIZE);
+    }
+  });
 
   requestAnimationFrame(draw);
 }
