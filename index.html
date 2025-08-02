@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rose Pixel Animation</title>
+    <title>Rose Bouquet Pixel Animation</title>
     <style>
         body {
             background-color: #f0f0f0;
@@ -17,7 +17,7 @@
 
         #canvas-container {
             border: 1px solid #ccc;
-            background-color: #fff;
+            background-color: #000;
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
     </style>
@@ -32,84 +32,115 @@
         const canvas = document.getElementById('roseCanvas');
         const ctx = canvas.getContext('2d');
 
-        const pixelSize = 10;
-        const width = 50 * pixelSize;
-        const height = 50 * pixelSize;
+        const pixelSize = 5;
+        const width = 100 * pixelSize;
+        const height = 100 * pixelSize;
 
         canvas.width = width;
         canvas.height = height;
 
         const pixelsToDraw = [
-            // Rose stem and leaves
-            {x: 25, y: 30, color: '#228B22'},
-            {x: 25, y: 31, color: '#228B22'},
-            {x: 25, y: 32, color: '#228B22'},
-            {x: 24, y: 32, color: '#228B22'},
-            {x: 23, y: 33, color: '#228B22'},
-            {x: 26, y: 32, color: '#228B22'},
-            {x: 27, y: 33, color: '#228B22'},
-            {x: 25, y: 33, color: '#228B22'},
-            {x: 25, y: 34, color: '#228B22'},
-            {x: 25, y: 35, color: '#228B22'},
-            {x: 25, y: 36, color: '#228B22'},
-            {x: 25, y: 37, color: '#228B22'},
-            {x: 25, y: 38, color: '#228B22'},
-            {x: 25, y: 39, color: '#228B22'},
-            {x: 25, y: 40, color: '#228B22'},
-            {x: 25, y: 41, color: '#228B22'},
+            // Pink Wrapping Paper - Left Side
+            { x: 49, y: 64, color: '#FFB6C1' }, { x: 50, y: 64, color: '#FFB6C1' },
+            { x: 48, y: 65, color: '#FFB6C1' }, { x: 49, y: 65, color: '#FFB6C1' },
+            { x: 47, y: 66, color: '#FFC0CB' }, { x: 48, y: 66, color: '#FFB6C1' },
+            { x: 46, y: 67, color: '#FFC0CB' }, { x: 47, y: 67, color: '#FFB6C1' },
+            { x: 45, y: 68, color: '#FFC0CB' }, { x: 46, y: 68, color: '#FFB6C1' },
+            { x: 44, y: 69, color: '#FFC0CB' }, { x: 45, y: 69, color: '#FFB6C1' },
+            { x: 43, y: 70, color: '#FFC0CB' }, { x: 44, y: 70, color: '#FFB6C1' },
+            { x: 42, y: 71, color: '#FFC0CB' }, { x: 43, y: 71, color: '#FFB6C1' },
+            { x: 41, y: 72, color: '#FFC0CB' }, { x: 42, y: 72, color: '#FFB6C1' },
+            { x: 40, y: 73, color: '#FFC0CB' }, { x: 41, y: 73, color: '#FFB6C1' },
+            { x: 39, y: 74, color: '#FFC0CB' }, { x: 40, y: 74, color: '#FFB6C1' },
+            { x: 38, y: 75, color: '#FFC0CB' }, { x: 39, y: 75, color: '#FFB6C1' },
+            { x: 37, y: 76, color: '#FFC0CB' }, { x: 38, y: 76, color: '#FFB6C1' },
+            { x: 36, y: 77, color: '#FFC0CB' }, { x: 37, y: 77, color: '#FFB6C1' },
+            { x: 35, y: 78, color: '#FFC0CB' }, { x: 36, y: 78, color: '#FFB6C1' },
+            { x: 34, y: 79, color: '#FFC0CB' }, { x: 35, y: 79, color: '#FFB6C1' },
+            { x: 33, y: 80, color: '#FFC0CB' }, { x: 34, y: 80, color: '#FFB6C1' },
+            { x: 32, y: 81, color: '#FFC0CB' }, { x: 33, y: 81, color: '#FFB6C1' },
 
-            // Rose petals (center)
-            {x: 25, y: 29, color: '#FF0000'},
-            {x: 25, y: 28, color: '#FF0000'},
-            {x: 26, y: 29, color: '#FF0000'},
-            {x: 24, y: 29, color: '#FF0000'},
-            {x: 26, y: 28, color: '#FF0000'},
-            {x: 24, y: 28, color: '#FF0000'},
-            {x: 27, y: 29, color: '#FF0000'},
-            {x: 23, y: 29, color: '#FF0000'},
-            {x: 27, y: 28, color: '#FF0000'},
-            {x: 23, y: 28, color: '#FF0000'},
+            // Pink Wrapping Paper - Right Side
+            { x: 51, y: 64, color: '#FFB6C1' }, { x: 52, y: 64, color: '#FFB6C1' },
+            { x: 52, y: 65, color: '#FFB6C1' }, { x: 53, y: 65, color: '#FFB6C1' },
+            { x: 53, y: 66, color: '#FFC0CB' }, { x: 54, y: 66, color: '#FFB6C1' },
+            { x: 54, y: 67, color: '#FFC0CB' }, { x: 55, y: 67, color: '#FFB6C1' },
+            { x: 55, y: 68, color: '#FFC0CB' }, { x: 56, y: 68, color: '#FFB6C1' },
+            { x: 56, y: 69, color: '#FFC0CB' }, { x: 57, y: 69, color: '#FFB6C1' },
+            { x: 57, y: 70, color: '#FFC0CB' }, { x: 58, y: 70, color: '#FFB6C1' },
+            { x: 58, y: 71, color: '#FFC0CB' }, { x: 59, y: 71, color: '#FFB6C1' },
+            { x: 59, y: 72, color: '#FFC0CB' }, { x: 60, y: 72, color: '#FFB6C1' },
+            { x: 60, y: 73, color: '#FFC0CB' }, { x: 61, y: 73, color: '#FFB6C1' },
+            { x: 61, y: 74, color: '#FFC0CB' }, { x: 62, y: 74, color: '#FFB6C1' },
+            { x: 62, y: 75, color: '#FFC0CB' }, { x: 63, y: 75, color: '#FFB6C1' },
+            { x: 63, y: 76, color: '#FFC0CB' }, { x: 64, y: 76, color: '#FFB6C1' },
+            { x: 64, y: 77, color: '#FFC0CB' }, { x: 65, y: 77, color: '#FFB6C1' },
+            { x: 65, y: 78, color: '#FFC0CB' }, { x: 66, y: 78, color: '#FFB6C1' },
+            { x: 66, y: 79, color: '#FFC0CB' }, { x: 67, y: 79, color: '#FFB6C1' },
+            { x: 67, y: 80, color: '#FFC0CB' }, { x: 68, y: 80, color: '#FFB6C1' },
+            { x: 68, y: 81, color: '#FFC0CB' }, { x: 69, y: 81, color: '#FFB6C1' },
 
-            // More petals
-            {x: 25, y: 27, color: '#DC143C'},
-            {x: 26, y: 27, color: '#DC143C'},
-            {x: 24, y: 27, color: '#DC143C'},
-            {x: 27, y: 27, color: '#DC143C'},
-            {x: 23, y: 27, color: '#DC143C'},
-            {x: 28, y: 28, color: '#DC143C'},
-            {x: 22, y: 28, color: '#DC143C'},
-            {x: 28, y: 29, color: '#DC143C'},
-            {x: 22, y: 29, color: '#DC143C'},
-            {x: 29, y: 29, color: '#DC143C'},
-            {x: 21, y: 29, color: '#DC143C'},
+            // Yellow/Gold Ribbon
+            { x: 47, y: 55, color: '#DAA520' }, { x: 48, y: 55, color: '#DAA520' }, { x: 49, y: 55, color: '#DAA520' }, { x: 50, y: 55, color: '#DAA520' }, { x: 51, y: 55, color: '#DAA520' },
+            { x: 46, y: 56, color: '#DAA520' }, { x: 47, y: 56, color: '#DAA520' }, { x: 48, y: 56, color: '#DAA520' }, { x: 49, y: 56, color: '#DAA520' }, { x: 50, y: 56, color: '#DAA520' }, { x: 51, y: 56, color: '#DAA520' }, { x: 52, y: 56, color: '#DAA520' },
 
-            // Outermost petals
-            {x: 25, y: 26, color: '#B22222'},
-            {x: 26, y: 26, color: '#B22222'},
-            {x: 24, y: 26, color: '#B22222'},
-            {x: 27, y: 26, color: '#B22222'},
-            {x: 23, y: 26, color: '#B22222'},
-            {x: 28, y: 27, color: '#B22222'},
-            {x: 22, y: 27, color: '#B22222'},
-            {x: 29, y: 28, color: '#B22222'},
-            {x: 21, y: 28, color: '#B22222'},
-            {x: 30, y: 28, color: '#B22222'},
-            {x: 20, y: 28, color: '#B22222'},
-            {x: 29, y: 27, color: '#B22222'},
-            {x: 21, y: 27, color: '#B22222'},
-            {x: 25, y: 25, color: '#B22222'},
-            {x: 26, y: 25, color: '#B22222'},
-            {x: 24, y: 25, color: '#B22222'},
-            {x: 27, y: 25, color: '#B22222'},
-            {x: 23, y: 25, color: '#B22222'},
-            {x: 28, y: 25, color: '#B22222'},
-            {x: 22, y: 25, color: '#B22222'},
-            {x: 29, y: 26, color: '#B22222'},
-            {x: 21, y: 26, color: '#B22222'}
+            // Stems and Leaves
+            { x: 49, y: 39, color: '#228B22' }, { x: 49, y: 40, color: '#228B22' }, { x: 49, y: 41, color: '#228B22' }, { x: 49, y: 42, color: '#228B22' }, { x: 49, y: 43, color: '#228B22' },
+            { x: 49, y: 44, color: '#2E8B57' }, { x: 48, y: 45, color: '#2E8B57' }, { x: 48, y: 46, color: '#2E8B57' },
+            { x: 52, y: 40, color: '#228B22' }, { x: 52, y: 41, color: '#228B22' }, { x: 52, y: 42, color: '#228B22' }, { x: 52, y: 43, color: '#228B22' },
+            { x: 52, y: 44, color: '#2E8B57' }, { x: 53, y: 45, color: '#2E8B57' }, { x: 53, y: 46, color: '#2E8B57' },
+
+            // Top Roses
+            // Rose 1 (Top Center)
+            { x: 49, y: 30, color: '#DC143C' }, { x: 50, y: 30, color: '#FF69B4' }, { x: 51, y: 30, color: '#DC143C' },
+            { x: 48, y: 31, color: '#C71585' }, { x: 52, y: 31, color: '#C71585' },
+            { x: 49, y: 32, color: '#FFC0CB' }, { x: 51, y: 32, color: '#FFC0CB' },
+            // Rose 2 (Top Left)
+            { x: 42, y: 32, color: '#FF1493' }, { x: 43, y: 32, color: '#FF69B4' }, { x: 44, y: 32, color: '#FF1493' },
+            { x: 41, y: 33, color: '#C71585' }, { x: 45, y: 33, color: '#C71585' },
+            { x: 42, y: 34, color: '#FFC0CB' }, { x: 44, y: 34, color: '#FFC0CB' },
+            // Rose 3 (Top Right)
+            { x: 56, y: 32, color: '#FF1493' }, { x: 57, y: 32, color: '#FF69B4' }, { x: 58, y: 32, color: '#FF1493' },
+            { x: 55, y: 33, color: '#C71585' }, { x: 59, y: 33, color: '#C71585' },
+            { x: 56, y: 34, color: '#FFC0CB' }, { x: 58, y: 34, color: '#FFC0CB' },
+            
+            // Middle Roses
+            // Rose 4 (Center Left)
+            { x: 45, y: 39, color: '#DC143C' }, { x: 46, y: 39, color: '#FF69B4' }, { x: 47, y: 39, color: '#DC143C' },
+            { x: 44, y: 40, color: '#C71585' }, { x: 48, y: 40, color: '#C71585' },
+            { x: 45, y: 41, color: '#FFC0CB' }, { x: 47, y: 41, color: '#FFC0CB' },
+            // Rose 5 (Center Right)
+            { x: 53, y: 39, color: '#DC143C' }, { x: 54, y: 39, color: '#FF69B4' }, { x: 55, y: 39, color: '#DC143C' },
+            { x: 52, y: 40, color: '#C71585' }, { x: 56, y: 40, color: '#C71585' },
+            { x: 53, y: 41, color: '#FFC0CB' }, { x: 55, y: 41, color: '#FFC0CB' },
+
+            // Bottom Roses
+            // Rose 6 (Bottom Left)
+            { x: 40, y: 45, color: '#FF1493' }, { x: 41, y: 45, color: '#FF69B4' }, { x: 42, y: 45, color: '#FF1493' },
+            { x: 39, y: 46, color: '#C71585' }, { x: 43, y: 46, color: '#C71585' },
+            { x: 40, y: 47, color: '#FFC0CB' }, { x: 42, y: 47, color: '#FFC0CB' },
+            // Rose 7 (Bottom Right)
+            { x: 58, y: 45, color: '#FF1493' }, { x: 59, y: 45, color: '#FF69B4' }, { x: 60, y: 45, color: '#FF1493' },
+            { x: 57, y: 46, color: '#C71585' }, { x: 61, y: 46, color: '#C71585' },
+            { x: 58, y: 47, color: '#FFC0CB' }, { x: 60, y: 47, color: '#FFC0CB' },
+            // Rose 8 (Bottom Center)
+            { x: 49, y: 48, color: '#DC143C' }, { x: 50, y: 48, color: '#FF69B4' }, { x: 51, y: 48, color: '#DC143C' },
+            { x: 48, y: 49, color: '#C71585' }, { x: 52, y: 49, color: '#C71585' },
+            { x: 49, y: 50, color: '#FFC0CB' }, { x: 51, y: 50, color: '#FFC0CB' },
+
+            // More Leaves and Stems
+            { x: 49, y: 33, color: '#2E8B57' }, { x: 48, y: 34, color: '#2E8B57' }, { x: 47, y: 35, color: '#2E8B57' },
+            { x: 51, y: 33, color: '#2E8B57' }, { x: 52, y: 34, color: '#2E8B57' }, { x: 53, y: 35, color: '#2E8B57' },
+            { x: 43, y: 35, color: '#2E8B57' }, { x: 42, y: 36, color: '#2E8B57' }, { x: 41, y: 37, color: '#2E8B57' },
+            { x: 57, y: 35, color: '#2E8B57' }, { x: 58, y: 36, color: '#2E8B57' }, { x: 59, y: 37, color: '#2E8B57' },
+            { x: 46, y: 42, color: '#2E8B57' }, { x: 45, y: 43, color: '#2E8B57' },
+            { x: 54, y: 42, color: '#2E8B57' }, { x: 55, y: 43, color: '#2E8B57' },
+            { x: 41, y: 48, color: '#2E8B57' }, { x: 40, y: 49, color: '#2E8B57' },
+            { x: 59, y: 48, color: '#2E8B57' }, { x: 60, y: 49, color: '#2E8B57' },
         ];
 
         let index = 0;
-        const animationSpeed = 50; // milliseconds per pixel
+        const animationSpeed = 10;
 
         function drawPixel() {
             if (index < pixelsToDraw.length) {
