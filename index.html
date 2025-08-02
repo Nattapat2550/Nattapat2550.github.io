@@ -8,7 +8,7 @@
         body {
             margin: 0;
             overflow: hidden;
-            background-color: #ffe6eb; /* สีชมพูพาสเทล */
+            background-color: #ffebee;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -23,35 +23,35 @@
             width: 100%;
             height: 100%;
             z-index: -1;
-            opacity: 0.3;
+            opacity: 0.2;
         }
         
         #canvas {
             image-rendering: pixelated;
-            border: 3px solid #ff85a2;
-            box-shadow: 0 0 20px rgba(255, 133, 162, 0.3);
+            border: 2px solid #ff85a2;
+            box-shadow: 0 0 15px rgba(255, 133, 162, 0.3);
         }
         
         #message {
             position: absolute;
             color: #d23669;
-            font-size: 2.5em;
+            font-size: 2em;
             text-align: center;
             opacity: 0;
             transition: opacity 2s;
             text-shadow: 0 0 5px rgba(255, 255, 255, 0.7);
-            background-color: rgba(255, 230, 235, 0.8);
-            padding: 20px 30px;
-            border-radius: 10px;
-            transform: translateY(150px);
+            background-color: rgba(255, 235, 238, 0.8);
+            padding: 15px 25px;
+            border-radius: 8px;
+            transform: translateY(180px);
         }
         
         .heart {
             position: absolute;
             color: #ff6b81;
             animation: float 6s ease-in-out infinite;
-            opacity: 0.5;
-            font-size: 20px;
+            opacity: 0.4;
+            font-size: 18px;
         }
         
         @keyframes float {
@@ -59,77 +59,97 @@
                 transform: translateY(0) rotate(0deg);
             }
             50% {
-                transform: translateY(-15px) rotate(5deg);
+                transform: translateY(-12px) rotate(5deg);
             }
         }
     </style>
 </head>
 <body>
     <div id="heart-bg"></div>
-    <canvas id="canvas" width="300" height="400"></canvas>
+    <canvas id="canvas" width="773" height="727"></canvas>
     <div id="message">Dear my girlfriend</div>
 
     <script>
-        // สร้างพื้นหลังหัวใจ
+        // สร้างหัวใจพื้นหลัง
         function createHearts() {
             const heartBg = document.getElementById('heart-bg');
-            for (let i = 0; i < 20; i++) {
+            for (let i = 0; i < 25; i++) {
                 const heart = document.createElement('div');
                 heart.innerHTML = '❤';
                 heart.className = 'heart';
                 heart.style.left = Math.random() * 100 + 'vw';
                 heart.style.top = Math.random() * 100 + 'vh';
-                heart.style.fontSize = (Math.random() * 15 + 10) + 'px';
+                heart.style.fontSize = (Math.random() * 16 + 8) + 'px';
                 heart.style.animationDelay = Math.random() * 6 + 's';
                 heartBg.appendChild(heart);
             }
         }
-        
-        // ข้อมูลพิกเซลดอกกุหลาบ (แบบครึ่งวงกลม)
+
+        // สร้างข้อมูลพิกเซลจากรูปภาพ (ตัวอย่าง)
         const rosePixels = [];
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
-        const centerX = 150;
-        const centerY = 100;
-        const radius = 60;
         
-        // สร้างข้อมูลพิกเซลดอกกุหลาบ
-        function generateRose() {
-            for (let y = 0; y < radius * 2; y++) {
-                for (let x = 0; x < radius * 2; x++) {
-                    const dx = x - radius;
-                    const dy = y - radius;
-                    const distance = Math.sqrt(dx * dx + dy * dy);
-                    
-                    if (distance <= radius) {
-                        const angle = Math.atan2(dy, dx);
-                        const petal = Math.abs(Math.sin(angle * 5 + distance * 0.2));
-                        
-                        if (petal > 0.7 - distance * 0.01) {
-                            const colorValue = Math.floor(200 - (distance / radius) * 120);
-                            rosePixels.push({
-                                x: centerX + dx,
-                                y: centerY + dy,
-                                color: `rgb(255, ${colorValue}, ${colorValue + 50})`
-                            });
-                        }
-                    }
-                }
-            }
+        // ตัวอย่างการสร้างดอกกุหลาบจากข้อมูล (คุณควรใช้ข้อมูลจริงจากรูปภาพ)
+        function generateRoseFromImage() {
+            // สมมติข้อมูลจากรูปภาพ (ในที่นี้สร้างตัวอย่าง)
+            const roseWidth = 773;
+            const roseHeight = 727;
+            const centerX = roseWidth / 2;
+            const centerY = roseHeight / 3;
             
-            // สร้างก้านดอก
-            for (let y = centerY + radius; y < centerY + radius + 100; y++) {
-                for (let x = centerX - 3; x <= centerX + 3; x++) {
-                    rosePixels.push({
-                        x: x,
-                        y: y,
-                        color: '#2e8b57'
-                    });
+            // สร้างดอกกุหลาบจากข้อมูลพิกเซล
+            for (let y = 0; y < roseHeight; y++) {
+                for (let x = 0; x < roseWidth; x++) {
+                    // ตรวจสอบว่าจุดนี้เป็นส่วนของดอกกุหลาบหรือไม่
+                    if (isPartOfRose(x, y, centerX, centerY)) {
+                        const color = getRoseColor(x, y, centerX, centerY);
+                        rosePixels.push({ x, y, color });
+                    }
                 }
             }
         }
         
-        // วาดดอกกุหลาบทีละพิกเซล
+        // ฟังก์ชันตรวจสอบว่าจุดนี้เป็นส่วนของดอกกุหลาบ
+        function isPartOfRose(x, y, centerX, centerY) {
+            // ตัวอย่างเงื่อนไขง่ายๆ (ควรปรับตามรูปจริง)
+            const dx = x - centerX;
+            const dy = y - centerY;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            
+            // ส่วนดอก
+            if (distance < 150 && y < centerY + 150) {
+                return true;
+            }
+            
+            // ส่วนก้าน
+            if (Math.abs(x - centerX) < 10 && y > centerY + 50 && y < centerY + 400) {
+                return true;
+            }
+            
+            return false;
+        }
+        
+        // ฟังก์ชันกำหนดสีดอกกุหลาบ
+        function getRoseColor(x, y, centerX, centerY) {
+            const dx = x - centerX;
+            const dy = y - centerY;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            const angle = Math.atan2(dy, dx);
+            
+            // ดอกสีแดงไล่ระดับ
+            if (distance < 150 && y < centerY + 150) {
+                const r = 200 + Math.floor(55 * (1 - distance/150));
+                const g = Math.floor(50 * (1 - distance/150));
+                const b = Math.floor(80 * (1 - distance/150));
+                return `rgb(${r}, ${g}, ${b})`;
+            }
+            
+            // ก้านสีเขียว
+            return '#2e8b57';
+        }
+        
+        // วาดทีละพิกเซล
         function drawRose() {
             let index = 0;
             
@@ -139,25 +159,30 @@
                     ctx.fillStyle = pixel.color;
                     ctx.fillRect(pixel.x, pixel.y, 1, 1);
                     index++;
-                    setTimeout(drawPixel, 5);
+                    
+                    // วาดทีละกลุ่มเพื่อความเร็ว
+                    if (index % 100 === 0) {
+                        setTimeout(drawPixel, 1);
+                    } else {
+                        drawPixel();
+                    }
                 } else {
-                    // แสดงข้อความเมื่อวาดเสร็จ
                     document.getElementById('message').style.opacity = 1;
                 }
             }
             
-            // เคลียร์ Canvas ก่อนวาด
-            ctx.fillStyle = '#ffe6eb';
+            // เคลียร์พื้นหลัง
+            ctx.fillStyle = '#ffebee';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             
             drawPixel();
         }
         
-        // เริ่มอนิเมชั่น
+        // เริ่มต้น
         window.onload = function() {
             createHearts();
-            generateRose();
-            setTimeout(drawRose, 1000);
+            generateRoseFromImage();
+            setTimeout(drawRose, 500);
         };
     </script>
 </body>
