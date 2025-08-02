@@ -14,7 +14,7 @@
     }
     canvas {
       image-rendering: pixelated;
-      width: 256px; /* ขยายขนาดแสดง */
+      width: 256px;
       height: 256px;
       border: 1px solid #ccc;
     }
@@ -28,8 +28,7 @@
     const ctx = canvas.getContext("2d");
 
     const img = new Image();
-    img.src = "IMG_4050.png"
-    // ↑ หมายเหตุ: base64 นี้เป็นตัวอย่าง! ถ้าคุณต้องการภาพกุหลาบจริง ให้ใช้ของจริงแทนนี้
+    img.src = "IMG_4050.png"; // ให้แน่ใจว่าไฟล์อยู่โฟลเดอร์เดียวกับ .html นี้
 
     img.onload = () => {
       const tempCanvas = document.createElement("canvas");
