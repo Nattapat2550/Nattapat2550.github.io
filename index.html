@@ -3,117 +3,188 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ดอกกุหลาบทีละพิกเซล</title>
+    <title>ดอกกุหลาบออร์แกนิก</title>
     <style>
         body {
             margin: 0;
             padding: 0;
-            background-color: #000;
-            overflow: hidden;
+            background-color: #111;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
+            overflow: hidden;
         }
-        #rose-container {
+        #rose {
+            width: 320px;
+            height: 320px;
             position: relative;
-            width: 400px;
-            height: 400px;
         }
         .pixel {
             position: absolute;
-            width: 4px;
-            height: 4px;
-            background-color: transparent;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            box-shadow: 
+                0 0 3px rgba(0,0,0,0.8),
+                inset 0 0 5px rgba(255,255,255,0.3);
+            transition: transform 0.3s, opacity 0.5s;
+            transform: scale(0);
+            opacity: 0;
         }
     </style>
 </head>
 <body>
-    <div id="rose-container"></div>
+    <div id="rose"></div>
 
     <script>
-        // ข้อมูลดอกกุหลาบ (รูปแบบพิกเซล)
-        const roseData = [
-            // Layer 1 - เงาด้านหลัง
-            {x: 20, y: 15, color: '#3a1a0a', delay: 0},
-            {x: 21, y: 15, color: '#3a1a0a', delay: 1},
-            {x: 22, y: 15, color: '#3a1a0a', delay: 2},
-            // Layer 2 - กลีบด้านนอก
-            {x: 18, y: 18, color: '#5e2b10', delay: 10},
-            {x: 19, y: 17, color: '#5e2b10', delay: 11},
-            {x: 20, y: 16, color: '#5e2b10', delay: 12},
-            // Layer 3 - กลีบกลาง
-            {x: 20, y: 20, color: '#8b4513', delay: 50},
-            {x: 21, y: 19, color: '#8b4513', delay: 51},
-            {x: 22, y: 18, color: '#8b4513', delay: 52},
-            // Layer 4 - กลีบด้านใน
-            {x: 22, y: 22, color: '#a0522d', delay: 100},
-            {x: 23, y: 21, color: '#a0522d', delay: 101},
-            {x: 24, y: 20, color: '#a0522d', delay: 102},
-            // Layer 5 - กลีบใจกลาง
-            {x: 24, y: 24, color: '#cd853f', delay: 150},
-            {x: 25, y: 23, color: '#cd853f', delay: 151},
-            {x: 26, y: 22, color: '#cd853f', delay: 152},
-            // Layer 6 - เกสร
-            {x: 26, y: 26, color: '#ffd700', delay: 200},
-            {x: 27, y: 25, color: '#ffd700', delay: 201},
-            {x: 28, y: 24, color: '#ffd700', delay: 202},
-            // ก้าน
-            {x: 20, y: 30, color: '#228b22', delay: 250},
-            {x: 20, y: 31, color: '#228b22', delay: 251},
-            {x: 20, y: 32, color: '#228b22', delay: 252},
-            {x: 20, y: 33, color: '#228b22', delay: 253},
-            // ใบ
-            {x: 18, y: 32, color: '#2e8b57', delay: 300},
-            {x: 17, y: 33, color: '#2e8b57', delay: 301},
-            {x: 19, y: 34, color: '#2e8b57', delay: 302},
-            // เพิ่มพิกเซลอื่นๆ ตามต้องการ...
+        // สร้างดอกกุหลาบแบบออร์แกนิก
+        const container = document.getElementById('rose');
+        const size = 32;
+        const pixelSize = 10;
+        
+        // สีดอกกุหลาบแบบธรรมชาติ
+        const colors = [
+            '#000000', // พื้นหลัง
+            '#FFD1DC', // ชมพูอ่อน
+            '#FF9EB5', // ชมพูกลาง
+            '#FF6B8B', // ชมพูเข้ม
+            '#FF1493', // ชมพูแดง
+            '#C2185B', // ชมพูไวน์
+            '#8B0000', // ชมพูเข้มมาก
+            '#2E8B57', // เขียวใบ
+            '#FFD700'  // เกสร
         ];
 
-        const container = document.getElementById('rose-container');
-        const scale = 10; // ขนาดการขยายของแต่ละพิกเซล
-
-        // สร้างอนิเมชั่นทีละพิกเซล
-        roseData.forEach(pixel => {
-            setTimeout(() => {
-                const pixelElement = document.createElement('div');
-                pixelElement.className = 'pixel';
-                pixelElement.style.left = (pixel.x * scale) + 'px';
-                pixelElement.style.top = (pixel.y * scale) + 'px';
-                pixelElement.style.backgroundColor = pixel.color;
-                pixelElement.style.boxShadow = `0 0 2px ${pixel.color}`;
-                container.appendChild(pixelElement);
-                
-                // เพิ่มเอฟเฟกต์เมื่อปรากฏ
-                pixelElement.style.transition = 'all 0.3s';
-                pixelElement.style.opacity = '0';
-                setTimeout(() => {
-                    pixelElement.style.opacity = '1';
-                }, 10);
-                
-            }, pixel.delay * 30); // ระยะเวลาหน่วงระหว่างพิกเซล
-        });
-
-        // เพิ่มพิกเซลแบบสุ่มเพื่อให้ดูเป็นธรรมชาติมากขึ้น
-        function addRandomPixels() {
-            for (let i = 0; i < 50; i++) {
-                const randomPixel = roseData[Math.floor(Math.random() * roseData.length)];
-                setTimeout(() => {
-                    const pixelElement = document.createElement('div');
-                    pixelElement.className = 'pixel';
-                    pixelElement.style.left = (randomPixel.x * scale + Math.random() * 4 - 2) + 'px';
-                    pixelElement.style.top = (randomPixel.y * scale + Math.random() * 4 - 2) + 'px';
-                    pixelElement.style.backgroundColor = randomPixel.color;
-                    pixelElement.style.opacity = '0.7';
-                    container.appendChild(pixelElement);
-                }, 1000 + Math.random() * 2000);
+        // สร้างโครงสร้างดอกกุหลาบแบบออร์แกนิก
+        function createOrganicRose() {
+            const centerX = size/2;
+            const centerY = size/2;
+            const rose = [];
+            
+            // สร้างอาร์เรย์ 2D
+            for(let y=0; y<size; y++) {
+                rose[y] = [];
+                for(let x=0; x<size; x++) {
+                    rose[y][x] = 0; // เริ่มด้วยพื้นหลัง
+                }
+            }
+            
+            // เพิ่มกลีบดอกแบบออร์แกนิก
+            addPetal(rose, centerX, centerY, 12, 14, 4, 1);
+            addPetal(rose, centerX, centerY, 10, 12, 3, 2);
+            addPetal(rose, centerX, centerY, 8, 10, 2, 3);
+            addPetal(rose, centerX, centerY, 6, 8, 1, 4);
+            
+            // เพิ่มเกสรดอกไม้
+            addStamen(rose, centerX, centerY, 4, 8);
+            
+            // เพิ่มใบ
+            addLeaf(rose, centerX+8, centerY+10, 5, 9);
+            addLeaf(rose, centerX-8, centerY+10, 5, 9);
+            
+            return rose;
+        }
+        
+        // สร้างกลีบดอก
+        function addPetal(rose, cx, cy, innerR, outerR, colorMin, colorMax) {
+            for(let y=0; y<size; y++) {
+                for(let x=0; x<size; x++) {
+                    const dx = x - cx;
+                    const dy = y - cy;
+                    const dist = Math.sqrt(dx*dx + dy*dy);
+                    
+                    if(dist >= innerR && dist <= outerR) {
+                        const angle = Math.atan2(dy, dx);
+                        const ripple = Math.sin(angle * 5) * 2;
+                        
+                        if(dist <= outerR + ripple) {
+                            const colorVal = Math.floor(
+                                colorMin + (colorMax-colorMin) * 
+                                (1 - (dist-innerR)/(outerR-innerR))
+                            );
+                            rose[y][x] = colorVal;
+                        }
+                    }
+                }
             }
         }
-
-        // เริ่มอนิเมชั่นเมื่อหน้าเว็บโหลดเสร็จ
-        window.onload = function() {
-            setTimeout(addRandomPixels, 2000);
-        };
+        
+        // สร้างเกสร
+        function addStamen(rose, cx, cy, radius, color) {
+            for(let y=0; y<size; y++) {
+                for(let x=0; x<size; x++) {
+                    const dx = x - cx;
+                    const dy = y - cy;
+                    if(dx*dx + dy*dy <= radius*radius) {
+                        rose[y][x] = color;
+                    }
+                }
+            }
+        }
+        
+        // สร้างใบ
+        function addLeaf(rose, cx, cy, width, color) {
+            for(let y=0; y<size; y++) {
+                for(let x=0; x<size; x++) {
+                    const dx = (x - cx) / width;
+                    const dy = (y - cy) / (width*1.5);
+                    if(dx*dx + dy*dy*dy*dy <= 1) {
+                        rose[y][x] = color;
+                    }
+                }
+            }
+        }
+        
+        // สร้างและแสดงดอกกุหลาบ
+        const organicRose = createOrganicRose();
+        renderRose(organicRose);
+        
+        function renderRose(roseData) {
+            // สุ่มลำดับการแสดงผล
+            const pixels = [];
+            for(let y=0; y<size; y++) {
+                for(let x=0; x<size; x++) {
+                    if(roseData[y][x] > 0) {
+                        pixels.push({x, y, color: roseData[y][x]});
+                    }
+                }
+            }
+            
+            // สุ่มลำดับพิกเซล
+            shuffleArray(pixels);
+            
+            // แสดงทีละพิกเซล
+            let delay = 0;
+            pixels.forEach((pixel, i) => {
+                setTimeout(() => {
+                    const pixelEl = document.createElement('div');
+                    pixelEl.className = 'pixel';
+                    pixelEl.style.left = `${pixel.x * pixelSize}px`;
+                    pixelEl.style.top = `${pixel.y * pixelSize}px`;
+                    pixelEl.style.backgroundColor = colors[pixel.color];
+                    pixelEl.style.transform = 'scale(1)';
+                    pixelEl.style.opacity = '1';
+                    
+                    // เพิ่มเอฟเฟกต์แสงเงา
+                    if(pixel.color >= 1 && pixel.color <= 6) {
+                        pixelEl.style.boxShadow += `, 0 0 10px ${colors[pixel.color]}40`;
+                    }
+                    
+                    container.appendChild(pixelEl);
+                }, delay);
+                
+                delay += 10 + Math.random() * 20;
+            });
+        }
+        
+        // ฟังก์ชันสลับอาร์เรย์
+        function shuffleArray(array) {
+            for(let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
     </script>
 </body>
 </html>
