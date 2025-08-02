@@ -2,93 +2,60 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Rose and Hearts</title>
+  <title>Rose Drawing Animation</title>
   <style>
     body {
-      margin: 0;
-      background: #ffe6f2;
+      background: #fff0f5;
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
-      overflow: hidden;
+      margin: 0;
     }
 
-    .heart {
-      position: absolute;
-      width: 20px;
-      height: 20px;
-      background-color: red;
-      transform: rotate(-45deg);
-      animation: float 6s infinite ease-in-out;
+    svg {
+      width: 300px;
+      height: 300px;
+      stroke: #e6005c;
+      stroke-width: 2;
+      fill: none;
     }
 
-    .heart::before,
-    .heart::after {
-      content: "";
-      position: absolute;
-      width: 20px;
-      height: 20px;
-      background-color: red;
-      border-radius: 50%;
+    path {
+      stroke-dasharray: 1000;
+      stroke-dashoffset: 1000;
+      animation: draw 4s forwards ease-in-out;
     }
 
-    .heart::before {
-      top: -10px;
-      left: 0;
-    }
-
-    .heart::after {
-      left: 10px;
-      top: 0;
-    }
-
-    @keyframes float {
-      0% { transform: translateY(0) rotate(-45deg); opacity: 1; }
-      100% { transform: translateY(-100px) rotate(-45deg); opacity: 0; }
-    }
-
-    .hearts {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-    }
-
-    .hearts .heart {
-      top: calc(50% + 120px * sin(var(--i) * 1.6rad));
-      left: calc(50% + 120px * cos(var(--i) * 1.6rad));
-      animation-delay: calc(var(--i) * 0.5s);
+    @keyframes draw {
+      to {
+        stroke-dashoffset: 0;
+      }
     }
   </style>
 </head>
 <body>
-  <div class="hearts">
-    <div class="heart" style="--i: 0;"></div>
-    <div class="heart" style="--i: 1;"></div>
-    <div class="heart" style="--i: 2;"></div>
-    <div class="heart" style="--i: 3;"></div>
-    <div class="heart" style="--i: 4;"></div>
-    <div class="heart" style="--i: 5;"></div>
-    <div class="heart" style="--i: 6;"></div>
-    <div class="heart" style="--i: 7;"></div>
-  </div>
+  <svg viewBox="0 0 200 200">
+    <!-- ก้านดอก -->
+    <path d="M100 150 Q95 160 100 180 Q105 160 100 150" stroke="#228B22" stroke-width="2" />
 
-  <!-- ดอกกุหลาบแบบ SVG -->
-  <svg width="300" height="300" viewBox="0 0 300 300">
-    <g transform="translate(150,150)">
-      <circle r="20" fill="#e6005c"/>
-      <path d="M0,0
-        C20,-30 60,-30 60,0
-        C60,30 20,30 0,60
-        C-20,30 -60,30 -60,0
-        C-60,-30 -20,-30 0,0
-        Z"
-        fill="#ff6699"
-        stroke="#cc3366"
-        stroke-width="2"
-      />
-    </g>
+    <!-- กลีบดอกกุหลาบ -->
+    <path d="M100,100 
+             C90,80 110,70 120,85 
+             C130,100 120,115 100,120 
+             C80,115 70,100 85,85 
+             C90,90 90,95 100,100 Z" />
+
+    <!-- กลีบวงใน -->
+    <path d="M100,100 
+             C102,96 105,95 108,100 
+             C105,105 100,105 100,100 Z" />
+
+    <!-- กลีบขอบนอก -->
+    <path d="M100,100 
+             C70,70 130,60 130,100 
+             C130,140 70,140 70,100 
+             C70,80 80,75 100,100 Z" />
   </svg>
 </body>
 </html>
