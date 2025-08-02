@@ -1,83 +1,109 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="th">
 <head>
-  <meta charset="UTF-8" />
-  <title>🌹 Pixel Rose Animation</title>
-  <style>
-    body {
-      background: #ffe6f0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
-    }
-    canvas {
-      image-rendering: pixelated;
-      border: 1px solid #ccc;
-      width: auto;
-      height: 80vh;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>แสดงรูปภาพทีละพิกเซล</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        #container {
+            margin: 0 auto;
+            max-width: 800px;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        #canvas {
+            border: 1px solid #ddd;
+            margin: 20px auto;
+            display: block;
+            background-color: black;
+        }
+        #progress {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #666;
+        }
+    </style>
 </head>
 <body>
-  <canvas id="canvas"></canvas>
+    <div id="container">
+        <h1>แสดงรูปภาพทีละพิกเซล</h1>
+        <canvas id="canvas"></canvas>
+        <div id="progress">กำลังเตรียมภาพ...</div>
+    </div>
 
-  <script>
-    const canvas = document.getElementById("canvas");
-    const ctx = canvas.getContext("2d");
-
-    const img = new Image();
-    
-    // ตรวจสอบ error
-    img.onerror = () => {
-      console.error("Failed to load image");
-      alert("รูปภาพโหลดไม่สำเร็จ ตรวจสอบชื่อไฟล์และ path");
-    };
-
-    // ใช้รูปทดสอบหากต้องการ
-    // img.src = "https://via.placeholder.com/100x100.png";
-    img.src = "IMG_4050.png";
-
-    img.onload = () => {
-      console.log("Image loaded successfully");
-      canvas.width = img.width;
-      canvas.height = img.height;
-
-      const tempCanvas = document.createElement("canvas");
-      tempCanvas.width = img.width;
-      tempCanvas.height = img.height;
-      const tempCtx = tempCanvas.getContext("2d");
-      tempCtx.drawImage(img, 0, 0);
-
-      const imgData = tempCtx.getImageData(0, 0, img.width, img.height).data;
-
-      let i = 0;
-      const drawPixel = () => {
-        if (i >= img.width * img.height) {
-          console.log("Animation complete");
-          return;
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const progress = document.getElementById('progress');
+        
+        let imageData = null;
+        let pixelIndex = 0;
+        let animationId = null;
+        let speed = 10; // จำนวนพิกเซลที่แสดงต่อเฟรม
+        
+        // สร้างรูปภาพตัวอย่างแบบไดนามิก (สีสันสวยงาม)
+        const sampleImage = new Image();
+        sampleImage.onload = function() {
+            // ตั้งค่าขนาด Canvas ให้เท่ากับรูปภาพ
+            canvas.width = sampleImage.width;
+            canvas.height = sampleImage.height;
+            
+            // วาดภาพทั้งภาพแบบมัวๆ ก่อน (เป็นพื้นหลัง)
+            ctx.filter = 'blur(10px)';
+            ctx.drawImage(sampleImage, 0, 0);
+            ctx.filter = 'none';
+            
+            // เก็บข้อมูลพิกเซล
+            ctx.drawImage(sampleImage, 0, 0);
+            imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            pixelIndex = 0;
+            progress.textContent = `กำลังแสดงพิกเซล: 0/${canvas.width * canvas.height}`;
+            
+            // เริ่มแสดงพิกเซลทีละจุด
+            animate();
+        };
+        
+        // สร้างรูปภาพตัวอย่าง (สีสันสวยงาม)
+        sampleImage.src = 'IMG_4050.png'        
+        function animate() {
+            if (!imageData) return;
+            
+            // แสดงพิกเซลจำนวน 'speed' พิกเซลต่อเฟรม
+            for (let i = 0; i < speed && pixelIndex < imageData.data.length / 4; i++) {
+                const x = pixelIndex % canvas.width;
+                const y = Math.floor(pixelIndex / canvas.width);
+                
+                const index = (y * canvas.width + x) * 4;
+                const r = imageData.data[index];
+                const g = imageData.data[index + 1];
+                const b = imageData.data[index + 2];
+                const a = imageData.data[index + 3] / 255;
+                
+                ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${a})`;
+                ctx.fillRect(x, y, 1, 1);
+                
+                pixelIndex++;
+            }
+            
+            progress.textContent = `กำลังแสดงพิกเซล: ${pixelIndex}/${canvas.width * canvas.height} (${Math.round((pixelIndex / (canvas.width * canvas.height)) * 100)}%)`;
+            
+            if (pixelIndex < canvas.width * canvas.height) {
+                animationId = requestAnimationFrame(animate);
+            } else {
+                progress.textContent = "แสดงภาพเสร็จสมบูรณ์!";
+            }
         }
-
-        const x = i % img.width;
-        const y = Math.floor(i / img.width);
-        const idx = i * 4;
-        const r = imgData[idx];
-        const g = imgData[idx + 1];
-        const b = imgData[idx + 2];
-        const a = imgData[idx + 3] / 255;
-
-        if (a > 0) {
-          ctx.fillStyle = `rgba(${r},${g},${b},${a})`;
-          ctx.fillRect(x, y, 1, 1);
-        }
-
-        i++;
-        requestAnimationFrame(drawPixel);
-      };
-
-      drawPixel();
-    };
-  </script>
+    </script>
 </body>
 </html>
