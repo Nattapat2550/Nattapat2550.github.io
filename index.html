@@ -1,13 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Rose and Hearts Animation</title>
+  <meta charset="UTF-8">
+  <title>Rose and Hearts</title>
   <style>
     body {
       margin: 0;
-      background: #ffe6f0;
+      background: #ffe6f2;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -15,56 +14,32 @@
       overflow: hidden;
     }
 
-    .container {
-      position: relative;
-      width: 400px;
-      height: 400px;
-      animation: pulse 4s infinite ease-in-out;
-    }
-
-    @keyframes pulse {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.05); }
-    }
-
-    .rose {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      width: 200px;
-      height: 200px;
-      background: radial-gradient(circle at 50% 50%, #e6005c, #990033);
-      border-radius: 50% 50% 40% 60% / 60% 40% 60% 40%;
-      transform: translate(-50%, -50%) rotate(0deg);
-      box-shadow: 0 0 20px #e6005c;
-    }
-
     .heart {
       position: absolute;
-      width: 30px;
-      height: 30px;
-      background: red;
+      width: 20px;
+      height: 20px;
+      background-color: red;
       transform: rotate(-45deg);
       animation: float 6s infinite ease-in-out;
     }
 
     .heart::before,
     .heart::after {
-      content: '';
+      content: "";
       position: absolute;
-      width: 30px;
-      height: 30px;
-      background: red;
+      width: 20px;
+      height: 20px;
+      background-color: red;
       border-radius: 50%;
     }
 
     .heart::before {
-      top: -15px;
+      top: -10px;
       left: 0;
     }
 
     .heart::after {
-      left: 15px;
+      left: 10px;
       top: 0;
     }
 
@@ -73,17 +48,22 @@
       100% { transform: translateY(-100px) rotate(-45deg); opacity: 0; }
     }
 
-    .heart:nth-child(n+2) {
-      animation-delay: calc(0.2s * var(--i));
+    .hearts {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+
+    .hearts .heart {
       top: calc(50% + 120px * sin(var(--i) * 1.6rad));
       left: calc(50% + 120px * cos(var(--i) * 1.6rad));
+      animation-delay: calc(var(--i) * 0.5s);
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="rose"></div>
-    <!-- Create multiple hearts -->
+  <div class="hearts">
     <div class="heart" style="--i: 0;"></div>
     <div class="heart" style="--i: 1;"></div>
     <div class="heart" style="--i: 2;"></div>
@@ -93,5 +73,22 @@
     <div class="heart" style="--i: 6;"></div>
     <div class="heart" style="--i: 7;"></div>
   </div>
+
+  <!-- ดอกกุหลาบแบบ SVG -->
+  <svg width="300" height="300" viewBox="0 0 300 300">
+    <g transform="translate(150,150)">
+      <circle r="20" fill="#e6005c"/>
+      <path d="M0,0
+        C20,-30 60,-30 60,0
+        C60,30 20,30 0,60
+        C-20,30 -60,30 -60,0
+        C-60,-30 -20,-30 0,0
+        Z"
+        fill="#ff6699"
+        stroke="#cc3366"
+        stroke-width="2"
+      />
+    </g>
+  </svg>
 </body>
 </html>
