@@ -2,10 +2,10 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Beautiful Rose Drawing</title>
+  <title>Rose Drawing Animation</title>
   <style>
     body {
-      background: #fff0f5;
+      background: #fce4ec;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -21,67 +21,71 @@
     path {
       stroke-dasharray: 1000;
       stroke-dashoffset: 1000;
-      animation: draw 3s forwards ease-in-out;
+      animation: draw 3s ease-in-out forwards;
+      fill-opacity: 0;
     }
 
-    .petal {
+    .layer1 {
       stroke: #cc3366;
-      fill: #ff6699;
+      fill: #f48fb1;
+      animation-delay: 0.2s;
     }
 
-    .inner {
-      stroke: #b30059;
-      fill: #ff99cc;
+    .layer2 {
+      stroke: #b71c5c;
+      fill: #f06292;
       animation-delay: 1s;
     }
 
-    .outer {
-      stroke: #993366;
-      fill: #ffb6d9;
-      animation-delay: 2s;
+    .layer3 {
+      stroke: #880e4f;
+      fill: #ec407a;
+      animation-delay: 1.8s;
     }
 
-    .stem {
-      stroke: #228B22;
-      fill: #66cc66;
-      animation-delay: 2.5s;
+    .leaf {
+      stroke: #2e7d32;
+      fill: #81c784;
+      animation-delay: 2.2s;
     }
 
     @keyframes draw {
       to {
         stroke-dashoffset: 0;
+        fill-opacity: 1;
       }
     }
   </style>
 </head>
 <body>
   <svg viewBox="0 0 200 200">
-    <!-- Outer petal -->
-    <path class="outer" d="
-      M100,100 
-      C70,70 130,60 130,100 
-      C130,140 70,140 70,100 
-      C70,80 80,75 100,100 Z" />
+    <!-- กลีบดอกชั้นนอก -->
+    <path class="layer1" d="
+      M100,100
+      C60,70 140,70 130,100
+      C140,130 60,130 70,100
+      Z" />
 
-    <!-- Middle petal -->
-    <path class="petal" d="
-      M100,100 
-      C90,80 110,70 120,85 
-      C130,100 120,115 100,120 
-      C80,115 70,100 85,85 
-      C90,90 90,95 100,100 Z" />
+    <!-- กลีบดอกชั้นกลาง -->
+    <path class="layer2" d="
+      M100,100
+      C90,85 115,85 110,100
+      C115,115 85,115 90,100
+      Z" />
 
-    <!-- Inner swirl -->
-    <path class="inner" d="
-      M100,100 
-      C102,96 105,95 108,100 
-      C105,105 100,105 100,100 Z" />
+    <!-- กลีบดอกชั้นใน -->
+    <path class="layer3" d="
+      M100,100
+      C98,98 102,98 102,100
+      C102,102 98,102 98,100
+      Z" />
 
-    <!-- Stem -->
-    <path class="stem" d="
-      M100 120 
-      Q95 140 100 180 
-      Q105 140 100 120 Z" />
+    <!-- ใบไม้ -->
+    <path class="leaf" d="
+      M100,130
+      Q95,145 100,160
+      Q105,145 100,130
+      Z" />
   </svg>
 </body>
 </html>
