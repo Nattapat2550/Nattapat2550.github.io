@@ -1,23 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Pixel Rose with Hearts</title>
+  <meta charset="UTF-8">
+  <title>Pixel Rose</title>
   <style>
     body {
       margin: 0;
-      background-color: #f9dce3;
+      background-color: #ffe4ec;
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
       overflow: hidden;
-      flex-direction: column;
-      font-family: sans-serif;
-    }
-
-    .canvas-container {
       position: relative;
     }
 
@@ -25,98 +19,105 @@
       image-rendering: pixelated;
     }
 
-    .hearts {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-    }
-
     .heart {
       position: absolute;
-      width: 24px;
-      height: 24px;
-      background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAABLUlEQVRIS+2U0QqCMBBFRQYz1B7gA7gAHoAHkADuAB+QB6ACeVJdSFIYgRzrcgyW+pg8/38ePPUHHAB5CdXtALkIXBRnAU4BFdnzH3kUWBZwKrW7LZKOmMQ9zF2oJ0+S6IbRGYbmvAHtwB8lqdzzvylkZrDcWY7XTg6gOvXw3DBjzRAZkRWLptv3oBlfK66f1QZuFDTvcvQbkAr1dFaPXEAiYDrMzTbz/1BBN4c0lyEGcB2rbKq1HOV67jcU3P+DkCO1Qvu2aRFGIJP2qzyxSyCCX6FwAAAABJRU5ErkJggg==');
-      background-size: cover;
-      animation: float 3s ease-in-out infinite;
+      width: 16px;
+      height: 16px;
+      background: red;
+      clip-path: polygon(
+        50% 0%,
+        61% 11%,
+        72% 22%,
+        83% 33%,
+        94% 44%,
+        100% 55%,
+        94% 66%,
+        83% 77%,
+        72% 88%,
+        61% 99%,
+        50% 88%,
+        39% 99%,
+        28% 88%,
+        17% 77%,
+        6% 66%,
+        0% 55%,
+        6% 44%,
+        17% 33%,
+        28% 22%,
+        39% 11%
+      );
+      animation: float 2s ease-in-out infinite;
     }
 
     @keyframes float {
-      0%, 100% {
-        transform: translateY(0px) scale(1);
-      }
-      50% {
-        transform: translateY(-10px) scale(1.05);
-      }
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-6px); }
     }
   </style>
 </head>
 <body>
-  <div class="canvas-container">
-    <canvas id="roseCanvas" width="256" height="256"></canvas>
-    <div class="hearts" id="heartContainer"></div>
-  </div>
+  <canvas id="canvas" width="64" height="64"></canvas>
+
+  <!-- หัวใจขยับ -->
+  <div class="heart" style="top: 10%; left: 20%;"></div>
+  <div class="heart" style="top: 10%; right: 20%;"></div>
+  <div class="heart" style="top: 20%; left: 50%;"></div>
 
   <script>
-    const canvas = document.getElementById('roseCanvas');
-    const ctx = canvas.getContext('2d');
-    const img = new Image();
-    img.src = './IMG_4050.png'; // หรือเปลี่ยนเป็น base64 ได้ถ้าเอาภาพเข้าไปเลย
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext("2d");
+    const scale = 8; // ขยายพิกเซลให้ใหญ่
+    canvas.style.width = canvas.width * scale + "px";
+    canvas.style.height = canvas.height * scale + "px";
 
-    let pixelsDrawn = 0;
-    const pixelsPerFrame = 100;
-
-    img.onload = () => {
-      const tempCanvas = document.createElement('canvas');
-      tempCanvas.width = img.width;
-      tempCanvas.height = img.height;
-      const tempCtx = tempCanvas.getContext('2d');
-      tempCtx.drawImage(img, 0, 0);
-
-      const imageData = tempCtx.getImageData(0, 0, img.width, img.height);
-      const data = imageData.data;
-
-      const drawStep = () => {
-        for (let i = 0; i < pixelsPerFrame; i++) {
-          if (pixelsDrawn * 4 >= data.length) return;
-
-          const index = pixelsDrawn * 4;
-          const x = pixelsDrawn % img.width;
-          const y = Math.floor(pixelsDrawn / img.width);
-          const r = data[index];
-          const g = data[index + 1];
-          const b = data[index + 2];
-          const a = data[index + 3] / 255;
-
-          ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${a})`;
-          ctx.fillRect(x, y, 1, 1);
-          pixelsDrawn++;
-        }
-
-        requestAnimationFrame(drawStep);
-      };
-
-      drawStep();
-    };
-
-    // สร้างหัวใจขยับเบา ๆ
-    const heartContainer = document.getElementById('heartContainer');
-    const heartPositions = [
-      { top: '10%', left: '20%' },
-      { top: '5%', left: '50%' },
-      { top: '10%', right: '20%' },
-      { top: '30%', left: '10%' },
-      { top: '30%', right: '10%' },
+    // พิกเซลของดอกกุหลาบแบบง่าย ๆ (0 = โปร่งใส, 1 = กลีบดอก, 2 = ก้าน, 3 = ใบไม้)
+    const rosePixels = [
+      "0000000100000000",
+      "0000011110000000",
+      "0001111111100000",
+      "0011111111110000",
+      "0111111111111000",
+      "0011111111110000",
+      "0001111111100000",
+      "0000011110000000",
+      "0000022220000000",
+      "0000022220000000",
+      "0000022220000000",
+      "0000022220000000",
+      "0000030003000000",
+      "0000300000300000",
     ];
 
-    heartPositions.forEach(pos => {
-      const heart = document.createElement('div');
-      heart.classList.add('heart');
-      Object.assign(heart.style, pos);
-      heartContainer.appendChild(heart);
-    });
+    const colorMap = {
+      "0": "rgba(0,0,0,0)",         // โปร่งใส
+      "1": "#f080a0",               // กลีบดอก
+      "2": "#4a7b3f",               // ก้าน
+      "3": "#3caa3c"                // ใบไม้
+    };
+
+    let y = 0;
+    let x = 0;
+
+    function drawPixelSlowly() {
+      if (y >= rosePixels.length) return;
+
+      const row = rosePixels[y];
+      const pixel = row[x];
+      if (pixel !== "0") {
+        ctx.fillStyle = colorMap[pixel];
+        ctx.fillRect(x, y, 1, 1);
+      }
+
+      x++;
+      if (x >= row.length) {
+        x = 0;
+        y++;
+      }
+
+      requestAnimationFrame(drawPixelSlowly);
+    }
+
+    drawPixelSlowly();
   </script>
 </body>
 </html>
