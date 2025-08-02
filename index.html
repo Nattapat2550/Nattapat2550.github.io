@@ -15,7 +15,6 @@
     canvas {
       image-rendering: pixelated;
       border: 1px solid #ccc;
-      /* ขยาย canvas เพื่อให้ดูชัด */
       width: auto;
       height: 80vh;
     }
@@ -29,14 +28,22 @@
     const ctx = canvas.getContext("2d");
 
     const img = new Image();
-    img.src = "IMG_4050.png"; // ให้แน่ใจว่าไฟล์อยู่ในโฟลเดอร์เดียวกัน
+    
+    // ตรวจสอบ error
+    img.onerror = () => {
+      console.error("Failed to load image");
+      alert("รูปภาพโหลดไม่สำเร็จ ตรวจสอบชื่อไฟล์และ path");
+    };
+
+    // ใช้รูปทดสอบหากต้องการ
+    // img.src = "https://via.placeholder.com/100x100.png";
+    img.src = "IMG_4050.png";
 
     img.onload = () => {
-      // ปรับขนาด canvas ให้เท่ากับภาพจริง
+      console.log("Image loaded successfully");
       canvas.width = img.width;
       canvas.height = img.height;
 
-      // วาดลง canvas ชั่วคราว เพื่ออ่านข้อมูล pixel
       const tempCanvas = document.createElement("canvas");
       tempCanvas.width = img.width;
       tempCanvas.height = img.height;
@@ -47,7 +54,10 @@
 
       let i = 0;
       const drawPixel = () => {
-        if (i >= img.width * img.height) return;
+        if (i >= img.width * img.height) {
+          console.log("Animation complete");
+          return;
+        }
 
         const x = i % img.width;
         const y = Math.floor(i / img.width);
@@ -69,6 +79,5 @@
       drawPixel();
     };
   </script>
-  <img src="IMG_4050.png"/>
 </body>
 </html>
