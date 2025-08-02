@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>ดอกกุหลาบ 128bit + หัวใจพื้นหลังขยับ + แตกเมื่อกด</title>
+<title>ดอกกุหลาบ 128bit + หัวใจ 4 ดวงขยับ + แตกเมื่อกด</title>
 <style>
   body {
     margin:0; padding:0;
@@ -39,7 +39,6 @@ canvas.style.height = canvas.height + 'px';
 ctx.imageSmoothingEnabled = false;
 
 // ดอกกุหลาบ pixel art (128x128) สร้างเป็นวงกลมไล่สีแบบง่ายๆ (แทน pixel art จริง)
-// ฟังก์ชันสร้างสีแดงไล่ระดับจากกลางไปขอบ
 function getRoseColor(x, y) {
   const cx = WIDTH / 2;
   const cy = HEIGHT / 2;
@@ -49,14 +48,12 @@ function getRoseColor(x, y) {
 
   if(dist > 50) return null; // นอกวงกลมดอกกุหลาบ
 
-  // ไล่สีแดง-ชมพูตามระยะ
-  if(dist < 15) return {r: 178, g: 34, b: 34, a:255}; // แดงเข้ม (firebrick)
-  else if(dist < 30) return {r: 255, g: 105, b: 180, a:255}; // ชมพู (hotpink)
+  if(dist < 15) return {r: 178, g: 34, b: 34, a:255}; // แดงเข้ม
+  else if(dist < 30) return {r: 255, g: 105, b: 180, a:255}; // ชมพู
   else if(dist < 45) return {r: 216, g: 112, b: 147, a:255}; // ชมพูเข้ม
   else return null;
 }
 
-// วาดดอกกุหลาบทีละ pixel ทีละนิด (อนิเมชั่น)
 let rosePixels = [];
 for(let y=0; y<HEIGHT; y++) {
   for(let x=0; x<WIDTH; x++) {
@@ -65,8 +62,11 @@ for(let y=0; y<HEIGHT; y++) {
   }
 }
 
+// วาดดอกกุหลาบครบแล้วเก็บภาพไว้ไม่หาย
+let roseIndex = 0;
+let roseComplete = false;
+
 // หัวใจ pixel art ขนาด 6x6 pixel (2x2 block จริงบน canvas เพราะ pixel ขยาย 4 เท่า)
-// รูปหัวใจ pixel แบบ simple 6x6 matrix (1=สีเต็ม, 0=โปร่ง)
 const heartPattern = [
   [0,1,1,0,0,0],
   [1,1,1,1,0,0],
@@ -76,29 +76,26 @@ const heartPattern = [
   [0,0,0,0,0,0]
 ];
 
-// Heart class สำหรับหัวใจแต่ละดวง
 class Heart {
   constructor(x,y) {
     this.x = x;
     this.y = y;
-    this.size = 6; // pixel ใน heartPattern
+    this.size = 6; 
     this.pixelSize = PIXEL_SIZE;
-    this.offsetX = 0; // สำหรับขยับ
+    this.offsetX = 0; 
     this.offsetY = 0;
-    this.vx = (Math.random()*1-0.5)*0.5; // ความเร็วขยับ x
-    this.vy = (Math.random()*1-0.5)*0.5; // ความเร็วขยับ y
-    this.broken = false; // ถูกคลิกแตกหรือยัง
-    this.particles = []; // สำหรับตอนแตก
+    this.vx = (Math.random()*1-0.5)*0.5;
+    this.vy = (Math.random()*1-0.5)*0.5;
+    this.broken = false; 
+    this.particles = [];
   }
 
   draw(ctx) {
     if(this.broken) {
-      // วาดอนิเมชั่นแตก (particles)
       this.particles.forEach(p=>{
         p.update();
         p.draw(ctx);
       });
-      // ลบ particles ที่จางหมด
       this.particles = this.particles.filter(p => p.alpha > 0);
       return;
     }
@@ -117,17 +114,14 @@ class Heart {
 
   update() {
     if(this.broken) {
-      // อัพเดต particles แทน
       this.particles.forEach(p=>p.update());
       this.particles = this.particles.filter(p => p.alpha > 0);
       return;
     }
 
-    // ขยับหัวใจแบบเด้งวนในขอบเขตเล็ก ๆ
     this.offsetX += this.vx;
     this.offsetY += this.vy;
 
-    // ถ้าเลยขอบเขต +/-1 pixel ให้เด้งกลับ
     if(this.offsetX > 1 || this.offsetX < -1) this.vx *= -1;
     if(this.offsetY > 1 || this.offsetY < -1) this.vy *= -1;
   }
@@ -135,7 +129,6 @@ class Heart {
   breakApart() {
     if(this.broken) return;
     this.broken = true;
-    // สร้าง particles จาก pixel แต่ละตัวในหัวใจ
     for(let py=0; py<this.size; py++) {
       for(let px=0; px<this.size; px++) {
         if(heartPattern[py][px]) {
@@ -150,8 +143,6 @@ class Heart {
   }
 
   isPointInside(px, py) {
-    // ตรวจสอบว่า point (px, py) อยู่ในหัวใจหรือไม่
-    // px, py เป็น pixel coordinate ของ canvas (ไม่ใช่ screen pixel)
     const localX = Math.floor((px/this.pixelSize) - this.x - this.offsetX);
     const localY = Math.floor((py/this.pixelSize) - this.y - this.offsetY);
     if(localX < 0 || localX >= this.size) return false;
@@ -160,7 +151,6 @@ class Heart {
   }
 }
 
-// Particle class สำหรับตอนหัวใจแตก
 class Particle {
   constructor(x,y,size) {
     this.x = x + Math.random()*size;
@@ -186,44 +176,43 @@ class Particle {
   }
 }
 
-// สร้างหัวใจหลายๆ ดวงเต็มพื้นที่พื้นหลัง
+// สร้างหัวใจแค่ 4 ดวงรอบดอกกุหลาบ
 const hearts = [];
-const heartsCols = Math.floor(WIDTH / 8);
-const heartsRows = Math.floor(HEIGHT / 8);
-for(let row=0; row < heartsRows; row++) {
-  for(let col=0; col < heartsCols; col++) {
-    // กระจายหัวใจแบบ grid แต่ random offset เล็กน้อย
-    let x = col * 8 + Math.random()*2;
-    let y = row * 8 + Math.random()*2;
-    hearts.push(new Heart(x,y));
-  }
-}
-
-// วาดดอกกุหลาบทีละ pixel แบบอนิเมชั่นทีละบิต
-let roseIndex = 0;
+const centerX = WIDTH / 2;
+const centerY = HEIGHT / 2;
+const heartOffsets = [
+  [-20, -20],
+  [20, -20],
+  [-20, 20],
+  [20, 20]
+];
+heartOffsets.forEach(offset => {
+  hearts.push(new Heart(centerX + offset[0], centerY + offset[1]));
+});
 
 function draw() {
-  // ล้าง canvas
   ctx.clearRect(0,0,canvas.width, canvas.height);
 
-  // วาดหัวใจทั้งหมด (พื้นหลัง)
+  // วาดหัวใจขยับ
   hearts.forEach(h => {
     h.update();
     h.draw(ctx);
   });
 
-  // วาดดอกกุหลาบ pixel ทีละบิต (ทีละ 5 pixel ต่อ frame เร็วขึ้น)
-  for(let i=0; i<5 && roseIndex < rosePixels.length; i++) {
-    const p = rosePixels[roseIndex];
-    ctx.fillStyle = `rgba(${p.color.r},${p.color.g},${p.color.b},${p.color.a/255})`;
-    ctx.fillRect(p.x * PIXEL_SIZE, p.y * PIXEL_SIZE, PIXEL_SIZE, PIXEL_SIZE);
-    roseIndex++;
-  }
-
-  // ถ้าวาดดอกกุหลาบครบแล้ว วาดทั้งหมดใหม่เพื่อให้หัวใจยังขยับอยู่ และดอกกุหลาบเต็ม
-  if(roseIndex >= rosePixels.length) {
-    // วาดดอกกุหลาบเต็มที่เหลือ (ไม่ใช่อนิเมชั่น)
-    for(let i=roseIndex; i < rosePixels.length; i++) {
+  // วาดดอกกุหลาบทีละบิต
+  if(!roseComplete) {
+    for(let i=0; i<5 && roseIndex < rosePixels.length; i++) {
+      const p = rosePixels[roseIndex];
+      ctx.fillStyle = `rgba(${p.color.r},${p.color.g},${p.color.b},${p.color.a/255})`;
+      ctx.fillRect(p.x * PIXEL_SIZE, p.y * PIXEL_SIZE, PIXEL_SIZE, PIXEL_SIZE);
+      roseIndex++;
+    }
+    if(roseIndex >= rosePixels.length) {
+      roseComplete = true;
+    }
+  } else {
+    // วาดดอกกุหลาบเต็มที่เก็บไว้ไม่หาย
+    for(let i=0; i < rosePixels.length; i++) {
       const p = rosePixels[i];
       ctx.fillStyle = `rgba(${p.color.r},${p.color.g},${p.color.b},${p.color.a/255})`;
       ctx.fillRect(p.x * PIXEL_SIZE, p.y * PIXEL_SIZE, PIXEL_SIZE, PIXEL_SIZE);
@@ -234,14 +223,11 @@ function draw() {
 }
 draw();
 
-// ตรวจจับคลิกเพื่อทำให้หัวใจแตก
 canvas.addEventListener('click', (e) => {
-  // ตำแหน่งคลิกบน canvas
   const rect = canvas.getBoundingClientRect();
   const clickX = (e.clientX - rect.left);
   const clickY = (e.clientY - rect.top);
 
-  // หาหัวใจที่ถูกคลิก (จากบนลงล่าง)
   for(let i=hearts.length-1; i>=0; i--) {
     const h = hearts[i];
     if(h.isPointInside(clickX, clickY)) {
