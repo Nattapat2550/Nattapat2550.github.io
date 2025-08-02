@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>For My Love 🌹</title>
+    <title>For My Beloved</title>
     <style>
         body {
             margin: 0;
             overflow: hidden;
-            background-color: #0f0e17;
+            background-color: #ffebee; /* สีชมพูพาสเทล */
             display: flex;
             justify-content: center;
             align-items: center;
@@ -16,99 +16,237 @@
             font-family: 'Arial', sans-serif;
         }
         
+        #heart-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.3;
+        }
+        
         #canvas {
-            image-rendering: pixelated;
-            border: 2px solid #4a234a;
+            image-rendering: crisp-edges;
+            width: 400px;
+            height: 500px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
         }
         
         #message {
             position: absolute;
-            color: #ff69b4;
-            font-size: 2em;
+            color: #d23669;
+            font-size: 2.2em;
             text-align: center;
             opacity: 0;
             transition: opacity 2s;
-            text-shadow: 0 0 5px #000;
-            background-color: rgba(15, 14, 23, 0.8);
-            padding: 15px 25px;
-            border-radius: 5px;
-            transform: translateY(100px);
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.7);
+            background-color: rgba(255, 235, 238, 0.7);
+            padding: 20px 30px;
+            border-radius: 10px;
+            transform: translateY(180px);
+            line-height: 1.4;
+        }
+        
+        .heart {
+            position: absolute;
+            color: #ff6b81;
+            animation: float 8s ease-in-out infinite;
+            opacity: 0.5;
+            font-size: 20px;
+        }
+        
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0) rotate(0deg) scale(1);
+            }
+            50% {
+                transform: translateY(-15px) rotate(5deg) scale(1.1);
+            }
         }
     </style>
 </head>
 <body>
-    <canvas id="canvas" width="160" height="200"></canvas>
-    <div id="message">Dear my girlfriend<br><span style="font-size:0.7em">You are my perfect rose 🌹</span></div>
+    <div id="heart-bg"></div>
+    <canvas id="canvas" width="200" height="250"></canvas>
+    <div id="message">Dear my love<br><span style="font-size:0.6em">You make my heart bloom<br>like these roses 💖</span></div>
 
     <script>
-        // ข้อมูลพิกเซลดอกกุหลาบแบบเป๊ะ 🌹 (11x11 พิกเซล)
-        const rosePixelArt = [
-            [0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0],
-            [0, 0, 1, 2, 2, 2, 2, 1, 0, 0, 0],
-            [0, 1, 2, 2, 3, 3, 2, 2, 1, 0, 0],
-            [0, 1, 2, 3, 3, 3, 3, 2, 1, 0, 0],
-            [1, 2, 3, 3, 3, 3, 3, 3, 2, 1, 0],
-            [1, 2, 3, 3, 3, 3, 3, 3, 2, 1, 0],
-            [1, 2, 2, 3, 3, 3, 3, 2, 2, 1, 0],
-            [0, 1, 2, 2, 2, 2, 2, 2, 1, 0, 0],
-            [0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0],
-            [0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 4, 4, 0, 0, 0, 0, 0, 0]
-        ];
-
-        // สีสำหรับดอกกุหลาบ
-        const colors = [
-            'transparent',       // 0 - พื้นที่ว่าง
-            '#6a1b1b',           // 1 - โคนดอกสีแดงเข้ม
-            '#d32f2f',           // 2 - กลีบดอกสีแดง
-            '#ff5252',           // 3 - ปลายกลีบสีชมพู
-            '#2e7d32'            // 4 - ก้านสีเขียว
-        ];
-
+        // สร้างพื้นหลังหัวใจ
+        function createHearts() {
+            const heartBg = document.getElementById('heart-bg');
+            for (let i = 0; i < 25; i++) {
+                const heart = document.createElement('div');
+                heart.innerHTML = '❤';
+                heart.className = 'heart';
+                heart.style.left = Math.random() * 100 + 'vw';
+                heart.style.top = Math.random() * 100 + 'vh';
+                heart.style.fontSize = (Math.random() * 15 + 10) + 'px';
+                heart.style.animationDelay = Math.random() * 8 + 's';
+                heart.style.opacity = Math.random() * 0.3 + 0.2;
+                heartBg.appendChild(heart);
+            }
+        }
+        
+        // ข้อมูลช่อกุหลาบ (ดอกใหญ่ 1 ดอกกลาง, ดอกเล็ก 4 ดอก)
+        const bouquet = [];
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
-        const pixelSize = 10; // ขนาดของแต่ละพิกเซล
-
-        // วาดดอกกุหลาบทีละพิกเซล
-        function drawRose() {
-            let y = 0;
+        const pixelSize = 2;
+        
+        // สีสำหรับช่อดอกไม้
+        const colors = {
+            darkRed: '#c93756',
+            red: '#e84363',
+            pink: '#fd79a8',
+            darkGreen: '#2d3436',
+            green: '#00b894',
+            lightGreen: '#55efc4'
+        };
+        
+        // สร้างดอกกุหลาบเดี่ยว
+        function createRose(centerX, centerY, size, colorVariant) {
+            const roseColors = [
+                colors.darkRed,
+                colorVariant === 'dark' ? colors.darkRed : colors.red,
+                colorVariant === 'dark' ? colors.red : colors.pink
+            ];
             
-            function drawRow() {
-                if (y < rosePixelArt.length) {
-                    const row = rosePixelArt[y];
-                    for (let x = 0; x < row.length; x++) {
-                        const colorIndex = row[x];
-                        if (colorIndex !== 0) { // ไม่ต้องวาดถ้าเป็นพื้นที่ว่าง
-                            ctx.fillStyle = colors[colorIndex];
-                            ctx.fillRect(
-                                (canvas.width/2 - (row.length*pixelSize)/2) + x*pixelSize, 
-                                y*pixelSize, 
-                                pixelSize, 
-                                pixelSize
+            for (let y = 0; y < size; y++) {
+                for (let x = 0; x < size; x++) {
+                    const dx = x - size/2;
+                    const dy = y - size/2;
+                    const distance = Math.sqrt(dx*dx + dy*dy);
+                    
+                    if (distance < size/2) {
+                        const angle = Math.atan2(dy, dx);
+                        const petal = Math.abs(Math.sin(angle * 5 + distance * 0.2));
+                        
+                        if (petal > 0.7 - distance*0.01) {
+                            const colorIndex = Math.min(
+                                Math.floor((1 - distance/(size/2)) * (roseColors.length-1)), 
+                                roseColors.length-1
                             );
+                            bouquet.push({
+                                x: centerX + dx,
+                                y: centerY + dy,
+                                color: roseColors[colorIndex]
+                            });
                         }
                     }
-                    y++;
-                    setTimeout(drawRow, 50); // ความเร็วในการวาดแต่ละแถว
+                }
+            }
+        }
+        
+        // สร้างก้านและใบ
+        function createStem(startX, startY, length, curve) {
+            // ก้าน
+            for (let y = 0; y < length; y++) {
+                const xOffset = Math.sin(y/length * Math.PI) * curve;
+                for (let x = -1; x <= 1; x++) {
+                    bouquet.push({
+                        x: startX + x + xOffset,
+                        y: startY + y,
+                        color: y < length/2 ? colors.darkGreen : colors.green
+                    });
+                }
+                
+                // ใบ
+                if (y % 20 === 10 && y < length - 15) {
+                    const leafSize = 8;
+                    const leafDir = curve > 0 ? 1 : -1;
+                    
+                    for (let ly = 0; ly < leafSize; ly++) {
+                        const lxMax = Math.floor(leafSize - Math.abs(ly - leafSize/2));
+                        for (let lx = 0; lx < lxMax; lx++) {
+                            bouquet.push({
+                                x: startX + xOffset + (lx + 2) * leafDir,
+                                y: startY + y + ly - leafSize/2,
+                                color: colors.lightGreen
+                            });
+                        }
+                    }
+                }
+            }
+        }
+        
+        // สร้างช่อดอกไม้ทั้งหมด
+        function createBouquet() {
+            // ดอกหลัก (ใหญ่กลาง)
+            createRose(100, 60, 40, 'dark');
+            createStem(100, 100, 90, 5);
+            
+            // ดอกรอง (เล็ก 4 ดอก)
+            createRose(70, 50, 25, 'light');
+            createStem(70, 75, 70, -10);
+            
+            createRose(130, 50, 25, 'light');
+            createStem(130, 75, 70, 10);
+            
+            createRose(60, 80, 20, 'light');
+            createStem(60, 100, 80, -15);
+            
+            createRose(140, 80, 20, 'light');
+            createStem(140, 100, 80, 15);
+            
+            // ใบประดับเพิ่มเติม
+            addFillerLeaves();
+        }
+        
+        function addFillerLeaves() {
+            // เพิ่มใบประดับให้ช่อดอกไม้ดูสมบูรณ์
+            for (let i = 0; i < 30; i++) {
+                const x = 80 + Math.random() * 40;
+                const y = 150 + Math.random() * 50;
+                const size = 5 + Math.random() * 5;
+                const angle = Math.random() * Math.PI * 2;
+                
+                for (let ly = 0; ly < size; ly++) {
+                    const lxMax = Math.floor(size - Math.abs(ly - size/2));
+                    for (let lx = -lxMax; lx <= lxMax; lx++) {
+                        if (Math.random() > 0.4) {
+                            const rx = lx * Math.cos(angle) - ly * Math.sin(angle);
+                            const ry = lx * Math.sin(angle) + ly * Math.cos(angle);
+                            bouquet.push({
+                                x: x + rx,
+                                y: y + ry,
+                                color: Math.random() > 0.7 ? colors.lightGreen : colors.green
+                            });
+                        }
+                    }
+                }
+            }
+        }
+        
+        // วาดช่อดอกไม้ทีละพิกเซล
+        function drawBouquet() {
+            let index = 0;
+            
+            function drawPixel() {
+                if (index < bouquet.length) {
+                    const pixel = bouquet[index];
+                    ctx.fillStyle = pixel.color;
+                    ctx.fillRect(pixel.x*pixelSize, pixel.y*pixelSize, pixelSize, pixelSize);
+                    index++;
+                    setTimeout(drawPixel, 3); // ความเร็วในการวาด
                 } else {
                     // แสดงข้อความเมื่อวาดเสร็จ
                     document.getElementById('message').style.opacity = 1;
                 }
             }
             
-            // เคลียร์ Canvas ก่อนวาด
-            ctx.fillStyle = '#0f0e17';
+            // วาดพื้นหลัง
+            ctx.fillStyle = '#ffebee';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             
-            drawRow();
+            drawPixel();
         }
-
+        
         // เริ่มอนิเมชั่น
         window.onload = function() {
-            setTimeout(drawRose, 1000);
+            createHearts();
+            createBouquet();
+            setTimeout(drawBouquet, 500);
         };
     </script>
 </body>
