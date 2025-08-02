@@ -2,8 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>16-bit Rose with Hearts</title>
+  <title>Pixel Rose with Hearts</title>
   <style>
     body {
       margin: 0;
@@ -12,50 +11,122 @@
       justify-content: center;
       align-items: center;
       height: 100vh;
-      flex-direction: column;
-      font-family: 'Courier New', monospace;
+      overflow: hidden;
+      font-family: monospace;
     }
 
-    .container {
+    .pixel {
+      width: 8px;
+      height: 8px;
+      position: absolute;
+    }
+
+    .rose-container {
       position: relative;
+      width: 160px;
+      height: 160px;
     }
 
-    .rose-img {
-      width: 300px;
-      image-rendering: pixelated;
-      border-radius: 12px;
-      box-shadow: 0 0 20px rgba(255, 105, 180, 0.4);
-      animation: pop 1.5s ease-in-out forwards;
+    /* ดอกกุหลาบ (โทนชมพู) */
+    .rose-petal {
+      background: #ff6699;
     }
 
-    @keyframes pop {
-      from {
-        transform: scale(0.8);
-        opacity: 0;
-      }
-      to {
-        transform: scale(1);
-        opacity: 1;
-      }
+    .rose-center {
+      background: #e6005c;
     }
 
-    .caption {
-      margin-top: 20px;
-      font-size: 20px;
-      color: #cc3366;
-      animation: fadein 2s ease-in;
+    /* ก้านดอก */
+    .stem {
+      background: #228B22;
     }
 
-    @keyframes fadein {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
+    /* ใบไม้ */
+    .leaf {
+      background: #66cc66;
+    }
+
+    /* หัวใจลอย */
+    .heart {
+      width: 16px;
+      height: 16px;
+      background: red;
+      transform: rotate(-45deg);
+      position: absolute;
+      animation: float 4s infinite ease-in-out;
+    }
+
+    .heart::before,
+    .heart::after {
+      content: '';
+      width: 16px;
+      height: 16px;
+      background: red;
+      border-radius: 50%;
+      position: absolute;
+    }
+
+    .heart::before {
+      top: -8px;
+      left: 0;
+    }
+
+    .heart::after {
+      left: 8px;
+      top: 0;
+    }
+
+    @keyframes float {
+      0% { transform: translateY(0) rotate(-45deg); opacity: 1; }
+      100% { transform: translateY(-80px) rotate(-45deg); opacity: 0; }
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <img class="rose-img" src="rose-pixel.png" alt="16-bit Rose with Hearts">
-  </div>
-  <div class="caption">สำหรับคุณด้วยความรัก 🌹💖</div>
+  <div class="rose-container" id="rose"></div>
+
+  <!-- หัวใจรอบๆ -->
+  <div class="heart" style="top: 20%; left: 10%; animation-delay: 0s;"></div>
+  <div class="heart" style="top: 30%; left: 80%; animation-delay: 1s;"></div>
+  <div class="heart" style="top: 70%; left: 20%; animation-delay: 2s;"></div>
+  <div class="heart" style="top: 60%; left: 75%; animation-delay: 2.5s;"></div>
+
+  <script>
+    const rose = document.getElementById('rose');
+
+    const pixels = [
+      // x, y, className
+      [8, 2, 'rose-center'],
+      [7, 3, 'rose-center'],
+      [8, 3, 'rose-petal'],
+      [9, 3, 'rose-center'],
+      [6, 4, 'rose-petal'],
+      [7, 4, 'rose-petal'],
+      [8, 4, 'rose-center'],
+      [9, 4, 'rose-petal'],
+      [10, 4, 'rose-petal'],
+
+      [5, 5, 'rose-petal'], [6, 5, 'rose-petal'], [7, 5, 'rose-petal'],
+      [8, 5, 'rose-center'], [9, 5, 'rose-petal'], [10, 5, 'rose-petal'], [11, 5, 'rose-petal'],
+
+      [7, 6, 'rose-petal'], [8, 6, 'rose-center'], [9, 6, 'rose-petal'],
+
+      [8, 7, 'stem'],
+      [8, 8, 'stem'],
+      [7, 9, 'leaf'],
+      [9, 9, 'leaf'],
+      [8, 9, 'stem'],
+      [8,10, 'stem']
+    ];
+
+    for (const [x, y, cls] of pixels) {
+      const div = document.createElement('div');
+      div.classList.add('pixel');
+      div.classList.add(cls);
+      div.style.left = `${x * 8}px`;
+      div.style.top = `${y * 8}px`;
+      rose.appendChild(div);
+    }
+  </script>
 </body>
 </html>
