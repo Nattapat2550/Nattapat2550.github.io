@@ -1,80 +1,119 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="th">
 <head>
-  <meta charset="UTF-8" />
-  <title>🌹 Pixel Emoji Render (Base64)</title>
-  <style>
-    body {
-      background: #ffe6f0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      margin: 0;
-    }
-    canvas {
-      image-rendering: pixelated;
-      width: 512px;
-      height: 512px;
-      border: 4px solid #cc6699;
-      background: white;
-    }
-    h1 {
-      color: #cc3366;
-      font-family: sans-serif;
-      margin-bottom: 20px;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ดอกกุหลาบทีละพิกเซล</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #000;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        #rose-container {
+            position: relative;
+            width: 400px;
+            height: 400px;
+        }
+        .pixel {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background-color: transparent;
+        }
+    </style>
 </head>
 <body>
-  <h1>🌹 Pixel Emoji Render (Base64)</h1>
-  <canvas id="canvas" width="256" height="256"></canvas>
+    <div id="rose-container"></div>
 
-  <script>
-    const canvas = document.getElementById("canvas");
-    const ctx = canvas.getContext("2d");
+    <script>
+        // ข้อมูลดอกกุหลาบ (รูปแบบพิกเซล)
+        const roseData = [
+            // Layer 1 - เงาด้านหลัง
+            {x: 20, y: 15, color: '#3a1a0a', delay: 0},
+            {x: 21, y: 15, color: '#3a1a0a', delay: 1},
+            {x: 22, y: 15, color: '#3a1a0a', delay: 2},
+            // Layer 2 - กลีบด้านนอก
+            {x: 18, y: 18, color: '#5e2b10', delay: 10},
+            {x: 19, y: 17, color: '#5e2b10', delay: 11},
+            {x: 20, y: 16, color: '#5e2b10', delay: 12},
+            // Layer 3 - กลีบกลาง
+            {x: 20, y: 20, color: '#8b4513', delay: 50},
+            {x: 21, y: 19, color: '#8b4513', delay: 51},
+            {x: 22, y: 18, color: '#8b4513', delay: 52},
+            // Layer 4 - กลีบด้านใน
+            {x: 22, y: 22, color: '#a0522d', delay: 100},
+            {x: 23, y: 21, color: '#a0522d', delay: 101},
+            {x: 24, y: 20, color: '#a0522d', delay: 102},
+            // Layer 5 - กลีบใจกลาง
+            {x: 24, y: 24, color: '#cd853f', delay: 150},
+            {x: 25, y: 23, color: '#cd853f', delay: 151},
+            {x: 26, y: 22, color: '#cd853f', delay: 152},
+            // Layer 6 - เกสร
+            {x: 26, y: 26, color: '#ffd700', delay: 200},
+            {x: 27, y: 25, color: '#ffd700', delay: 201},
+            {x: 28, y: 24, color: '#ffd700', delay: 202},
+            // ก้าน
+            {x: 20, y: 30, color: '#228b22', delay: 250},
+            {x: 20, y: 31, color: '#228b22', delay: 251},
+            {x: 20, y: 32, color: '#228b22', delay: 252},
+            {x: 20, y: 33, color: '#228b22', delay: 253},
+            // ใบ
+            {x: 18, y: 32, color: '#2e8b57', delay: 300},
+            {x: 17, y: 33, color: '#2e8b57', delay: 301},
+            {x: 19, y: 34, color: '#2e8b57', delay: 302},
+            // เพิ่มพิกเซลอื่นๆ ตามต้องการ...
+        ];
 
-    const img = new Image();
-    // base64 ของ emoji 🌹 ขนาด 256x256 px จาก twemoji
-    img.src = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQAAAAEACAIAAADTED8xAAAABmJLR0QA/wD/AP+gvaeTAAABFklEQVR42u3RAQEAAAjDMO5fNCAhqBTaDRMBIkSJEiRIkyjwDmAAr2gjEaBHAAD06TSIARAgBgAlB0BIQAFJtAkhAAkD4KIQAF7RBCUQB1CwJEAAYAJQdASSAAUm0CSFECQCfAAkkAA9ukGXAADA+hkhAAUM8JIRAGIwBJEABCUABCTQAyQAEJQAGJRBK7AAUm8CSFECQCQ/AgkAAeLGBaUAECYAhgALpZBJQCAoABNdyxIAJGABCA8ABTUAEFAAEpzAJhAwL9gVbjxQGiYEEHfCacIlvCQQ4JhV46Hy8HgCAAAAAElFTkSuQmCC";
+        const container = document.getElementById('rose-container');
+        const scale = 10; // ขนาดการขยายของแต่ละพิกเซล
 
-    img.onload = () => {
-      const tempCanvas = document.createElement("canvas");
-      tempCanvas.width = 256;
-      tempCanvas.height = 256;
-      const tempCtx = tempCanvas.getContext("2d");
-      tempCtx.drawImage(img, 0, 0, 256, 256);
+        // สร้างอนิเมชั่นทีละพิกเซล
+        roseData.forEach(pixel => {
+            setTimeout(() => {
+                const pixelElement = document.createElement('div');
+                pixelElement.className = 'pixel';
+                pixelElement.style.left = (pixel.x * scale) + 'px';
+                pixelElement.style.top = (pixel.y * scale) + 'px';
+                pixelElement.style.backgroundColor = pixel.color;
+                pixelElement.style.boxShadow = `0 0 2px ${pixel.color}`;
+                container.appendChild(pixelElement);
+                
+                // เพิ่มเอฟเฟกต์เมื่อปรากฏ
+                pixelElement.style.transition = 'all 0.3s';
+                pixelElement.style.opacity = '0';
+                setTimeout(() => {
+                    pixelElement.style.opacity = '1';
+                }, 10);
+                
+            }, pixel.delay * 30); // ระยะเวลาหน่วงระหว่างพิกเซล
+        });
 
-      const imgData = tempCtx.getImageData(0, 0, 256, 256).data;
-      const pixels = [];
-
-      for (let y = 0; y < 256; y++) {
-        for (let x = 0; x < 256; x++) {
-          const i = (y * 256 + x) * 4;
-          const r = imgData[i];
-          const g = imgData[i + 1];
-          const b = imgData[i + 2];
-          const a = imgData[i + 3];
-          if (a > 10) {
-            pixels.push({ x, y, color: `rgba(${r},${g},${b},${a / 255})` });
-          }
+        // เพิ่มพิกเซลแบบสุ่มเพื่อให้ดูเป็นธรรมชาติมากขึ้น
+        function addRandomPixels() {
+            for (let i = 0; i < 50; i++) {
+                const randomPixel = roseData[Math.floor(Math.random() * roseData.length)];
+                setTimeout(() => {
+                    const pixelElement = document.createElement('div');
+                    pixelElement.className = 'pixel';
+                    pixelElement.style.left = (randomPixel.x * scale + Math.random() * 4 - 2) + 'px';
+                    pixelElement.style.top = (randomPixel.y * scale + Math.random() * 4 - 2) + 'px';
+                    pixelElement.style.backgroundColor = randomPixel.color;
+                    pixelElement.style.opacity = '0.7';
+                    container.appendChild(pixelElement);
+                }, 1000 + Math.random() * 2000);
+            }
         }
-      }
 
-      let i = 0;
-      function draw() {
-        if (i < pixels.length) {
-          const p = pixels[i];
-          ctx.fillStyle = p.color;
-          ctx.fillRect(p.x, p.y, 1, 1);
-          i++;
-          if (i % 300 === 0) setTimeout(draw, 1);
-          else draw();
-        }
-      }
-      draw();
-    };
-  </script>
+        // เริ่มอนิเมชั่นเมื่อหน้าเว็บโหลดเสร็จ
+        window.onload = function() {
+            setTimeout(addRandomPixels, 2000);
+        };
+    </script>
 </body>
 </html>
