@@ -1,132 +1,150 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="th">
 <head>
-  <meta charset="UTF-8" />
-  <title>Pixel Rose with Hearts</title>
-  <style>
-    body {
-      margin: 0;
-      background: #ffe6f0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      overflow: hidden;
-      font-family: monospace;
-    }
-
-    .pixel {
-      width: 8px;
-      height: 8px;
-      position: absolute;
-    }
-
-    .rose-container {
-      position: relative;
-      width: 160px;
-      height: 160px;
-    }
-
-    /* ดอกกุหลาบ (โทนชมพู) */
-    .rose-petal {
-      background: #ff6699;
-    }
-
-    .rose-center {
-      background: #e6005c;
-    }
-
-    /* ก้านดอก */
-    .stem {
-      background: #228B22;
-    }
-
-    /* ใบไม้ */
-    .leaf {
-      background: #66cc66;
-    }
-
-    /* หัวใจลอย */
-    .heart {
-      width: 16px;
-      height: 16px;
-      background: red;
-      transform: rotate(-45deg);
-      position: absolute;
-      animation: float 4s infinite ease-in-out;
-    }
-
-    .heart::before,
-    .heart::after {
-      content: '';
-      width: 16px;
-      height: 16px;
-      background: red;
-      border-radius: 50%;
-      position: absolute;
-    }
-
-    .heart::before {
-      top: -8px;
-      left: 0;
-    }
-
-    .heart::after {
-      left: 8px;
-      top: 0;
-    }
-
-    @keyframes float {
-      0% { transform: translateY(0) rotate(-45deg); opacity: 1; }
-      100% { transform: translateY(-80px) rotate(-45deg); opacity: 0; }
-    }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>อนิเมชั่นดอกกุหลาบ Pixel 32bit พร้อมหัวใจ</title>
+<style>
+  body {
+    background: #111;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    user-select: none;
+  }
+  canvas {
+    image-rendering: pixelated;
+    border: 3px solid #ff007f;
+    background: #222;
+    border-radius: 15px;
+  }
+</style>
 </head>
 <body>
-  <div class="rose-container" id="rose"></div>
+<canvas id="canvas" width="320" height="320"></canvas>
 
-  <!-- หัวใจรอบๆ -->
-  <div class="heart" style="top: 20%; left: 10%; animation-delay: 0s;"></div>
-  <div class="heart" style="top: 30%; left: 80%; animation-delay: 1s;"></div>
-  <div class="heart" style="top: 70%; left: 20%; animation-delay: 2s;"></div>
-  <div class="heart" style="top: 60%; left: 75%; animation-delay: 2.5s;"></div>
+<script>
+// ขนาด pixel art 32x32
+const PIXEL_SIZE = 10;
+const WIDTH = 32;
+const HEIGHT = 32;
 
-  <script>
-    const rose = document.getElementById('rose');
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
 
-    const pixels = [
-      // x, y, className
-      [8, 2, 'rose-center'],
-      [7, 3, 'rose-center'],
-      [8, 3, 'rose-petal'],
-      [9, 3, 'rose-center'],
-      [6, 4, 'rose-petal'],
-      [7, 4, 'rose-petal'],
-      [8, 4, 'rose-center'],
-      [9, 4, 'rose-petal'],
-      [10, 4, 'rose-petal'],
+// ดอกกุหลาบ pixel art 32x32 (simplified pixel color array)
+// ใช้ 2D array: แต่ละตัวเป็น RGBA color string หรือ null = ใส่สีโปร่งใส
+// ตัวอย่างใช้สีแดงชมพูเข้ม-อ่อน + สีเขียวใบ
+// (นี่คือตัวอย่างง่ายๆ นะครับ ให้ดู concept สามารถปรับสีหรือเพิ่ม pixel ได้)
+const rosePixels = [
+  // 32 แถว arrays ของ 32 สี
+  // [null, null, ..., 'rgba(...)', ...]
+  // ผมจะเขียนแค่ pattern ตัวอย่าง ไม่ครบ 32 แถว
+  // โดยรวมให้เห็นเป็นดอกกุหลาบกลาง
+  // ... เราจะทำสีที่ใช้มากสุด สีแดง สีชมพู สีเขียว
+];
 
-      [5, 5, 'rose-petal'], [6, 5, 'rose-petal'], [7, 5, 'rose-petal'],
-      [8, 5, 'rose-center'], [9, 5, 'rose-petal'], [10, 5, 'rose-petal'], [11, 5, 'rose-petal'],
+// สร้าง data แบบง่าย ๆ สำหรับดอกกุหลาบและหัวใจ (ตัวอย่าง pixel art ที่ออกแบบเอง)
+// เนื่องจากพื้นที่จำกัด ผมจะสร้างตัวอย่างง่ายๆ และใช้ function ช่วยวาดหัวใจด้วยโค้ดแทน
 
-      [7, 6, 'rose-petal'], [8, 6, 'rose-center'], [9, 6, 'rose-petal'],
+// สำหรับตัวอย่างนี้ ผมจะสร้างดอกกุหลาบและหัวใจแบบ pixel art ในฟังก์ชัน draw
 
-      [8, 7, 'stem'],
-      [8, 8, 'stem'],
-      [7, 9, 'leaf'],
-      [9, 9, 'leaf'],
-      [8, 9, 'stem'],
-      [8,10, 'stem']
-    ];
-
-    for (const [x, y, cls] of pixels) {
-      const div = document.createElement('div');
-      div.classList.add('pixel');
-      div.classList.add(cls);
-      div.style.left = `${x * 8}px`;
-      div.style.top = `${y * 8}px`;
-      rose.appendChild(div);
+// วาดหัวใจ pixel แบบเล็ก ๆ รอบ ๆ ดอกกุหลาบ
+function drawHeart(x, y, size, color) {
+  ctx.fillStyle = color;
+  // วาดหัวใจ pixel ขนาด 3x3 block
+  // รูปแบบหัวใจ pixel 3x3:
+  //  1 1 0
+  // 1 1 1
+  //  0 1 0
+  const heartPattern = [
+    [1,1,0],
+    [1,1,1],
+    [0,1,0]
+  ];
+  for(let i=0;i<3;i++) {
+    for(let j=0;j<3;j++) {
+      if(heartPattern[i][j]) {
+        ctx.fillRect(x + j*size, y + i*size, size, size);
+      }
     }
-  </script>
+  }
+}
+
+// วาดดอกกุหลาบ pixel art แบบง่าย (32x32) ทีละ pixel (pixel size = 10)
+function drawRosePixelArt() {
+  // เพื่อไม่ให้โค้ดยาวมาก ผมจะสร้างแบบง่าย
+  // สีหลัก: แดงเข้ม (#b22222), ชมพู (#ff69b4), เขียวใบ (#228b22)
+  // รูปร่างดอกกุหลาบแบบ simplified
+
+  // ล้าง canvas
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // พื้นหลัง
+  ctx.fillStyle = '#222';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // วาดหัวใจ pixel รอบๆ
+  const heartColor = '#ff6699';
+  const heartPositions = [
+    [20, 20], [280, 20], [20, 280], [280, 280],
+    [150, 10], [10, 150], [300, 150], [150, 300],
+    [70, 70], [230, 70], [70, 230], [230, 230]
+  ];
+  heartPositions.forEach(pos => drawHeart(pos[0], pos[1], 8, heartColor));
+
+  // ดอกกุหลาบ pixel shape
+  // สร้าง array ของ pixels เป็น array ของ objects: {x,y,color}
+  const pixels = [];
+
+  // กลางดอกกุหลาบ (สีแดงเข้ม)
+  const centerX = 16;
+  const centerY = 16;
+  // วาดเป็นวงกลม pixel ขนาด radius 7 pixel
+  for(let y=-7; y<=7; y++) {
+    for(let x=-7; x<=7; x++) {
+      if(x*x + y*y <= 7*7) {
+        // สีสลับระหว่างแดงเข้มและชมพูตามระยะ
+        let dist = Math.sqrt(x*x + y*y);
+        let color;
+        if(dist < 3) color = '#b22222'; // แดงเข้ม
+        else if(dist < 5) color = '#ff69b4'; // ชมพู
+        else color = '#d87093'; // สีชมพูเข้มอมม่วง
+        pixels.push({x: centerX + x, y: centerY + y, color});
+      }
+    }
+  }
+
+  // ใบสีเขียว รอบดอก
+  for(let y=-9; y<=9; y++) {
+    for(let x=-9; x<=9; x++) {
+      let dist = Math.sqrt(x*x + y*y);
+      if(dist > 7 && dist <= 9) {
+        // สร้างรูปแบบใบไม่เต็มวงกลม
+        if(x < 0) { // ใบอยู่ด้านซ้าย
+          pixels.push({x: centerX + x, y: centerY + y, color: '#228b22'});
+        }
+      }
+    }
+  }
+
+  // อนิเมชั่นทีละ pixel
+  let index = 0;
+  function drawNextPixel() {
+    if(index >= pixels.length) return;
+    const p = pixels[index];
+    ctx.fillStyle = p.color;
+    ctx.fillRect(p.x * PIXEL_SIZE, p.y * PIXEL_SIZE, PIXEL_SIZE, PIXEL_SIZE);
+    index++;
+    requestAnimationFrame(drawNextPixel);
+  }
+  drawNextPixel();
+}
+
+drawRosePixelArt();
+
+</script>
 </body>
 </html>
