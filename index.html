@@ -1,100 +1,130 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="th">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pixel-Perfect Animation</title>
+    <title>Rose Pixel Animation</title>
     <style>
         body {
-            background-color: #f7d7d7; /* Light pink background */
+            background-color: #f0f0f0;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
             margin: 0;
-            flex-direction: column;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            color: #333;
+            overflow: hidden;
         }
 
-        h1 {
-            margin-bottom: 20px;
-            font-size: 2.5em;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
-        }
-
-        #pixelCanvas {
-            border: 2px solid #e6a7a7;
+        #canvas-container {
+            border: 1px solid #ccc;
             background-color: #fff;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
-            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
     </style>
 </head>
 <body>
-    <h1>Pixel-Perfect Rose Animation</h1>
-    <canvas id="pixelCanvas"></canvas>
+
+    <div id="canvas-container">
+        <canvas id="roseCanvas"></canvas>
+    </div>
 
     <script>
-        const canvas = document.getElementById('pixelCanvas');
+        const canvas = document.getElementById('roseCanvas');
         const ctx = canvas.getContext('2d');
-        
-        // This is a base64-encoded version of your pixel art image.
-        // It's a placeholder. To be truly pixel-perfect, you would need to
-        // generate a base64 string from your image using a tool or script.
-        // This example uses a simplified base64 string of a similar-looking image.
-        const base64Image = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqMYADAAABxUlEQVR42u3Z4YqDQBiA4f+i33d434A0X4G7D+58A38B7T2K8d+W2Dtg/eJjBv0R/d6n/R+I/1eAfgc9Q/D/BqC4H/p3Gf4dQPgYf19B/w8A4P34J8KPA4D4E8Hj/YkHAHDgW50/5v0JgADiTwQfBwDiT4QHhJ8AADd8IvwkADF8IhwAfAAAgQ8CAAcACAAACAgCAAkAgAgAgBAAgBACBCcICCIACRIACgCAAIACAAAACAAAAAgCAACAAAAgCAAAACAAAAgCAIAAAAAAAAICAAAAAgAAAAICAAAAAgAAAAAAAAIAAAAAAAAACAIAAAAAAAAICAAAAAgAAAAICAAAAAgAAAADgAwAAAAAAGAIAAAADAAAAIAAAAAAAAAIAAAAAAAAICAAAAAgAAAAAAAAIAAAAAAAAICAAAAAgAAAAICAAAAAgAAAADgAwAAAAAAGAIAAAAADAAAAIAAAB8HwAAACAAAAAAMAAAAAgAAAADAAAAIAAAAAAAAACAIAAAAAAAAICAAAAAgAAAAICAAAAAgAAAAIAAAADgAwAAAAAAGAIAAAAADAAAAIAAAAAAAACAIAAAAAAAAICAAAAAgAAAAICAAAAAgAAAAIAAAAADgBwAAAAAAGAIAAAAAAAAACAAAAAgAAAAICAAAAAAMAAAAA=... (truncated for brevity)";
 
-        const img = new Image();
-        let pixelData;
-        let pixelIndex = 0;
-        let drawingInterval = null;
-        let PIXEL_SIZE = 1; // Default to 1, will be scaled
+        const pixelSize = 10;
+        const width = 50 * pixelSize;
+        const height = 50 * pixelSize;
 
-        img.onload = function() {
-            // Create a temporary canvas to get the pixel data
-            const tempCanvas = document.createElement('canvas');
-            const tempCtx = tempCanvas.getContext('2d');
-            tempCanvas.width = img.width;
-            tempCanvas.height = img.height;
-            tempCtx.drawImage(img, 0, 0);
-            
-            const imageData = tempCtx.getImageData(0, 0, img.width, img.height);
-            pixelData = imageData.data;
-            
-            // Adjust the main canvas size and pixel size for better visualization
-            const scale = 5; // You can adjust this scale
-            canvas.width = img.width * scale;
-            canvas.height = img.height * scale;
-            PIXEL_SIZE = scale;
-            
-            // Start drawing automatically once the image data is ready
-            drawingInterval = setInterval(drawNextPixel, 1); // Fast drawing speed
-        };
+        canvas.width = width;
+        canvas.height = height;
 
-        img.src = base64Image;
+        const pixelsToDraw = [
+            // Rose stem and leaves
+            {x: 25, y: 30, color: '#228B22'},
+            {x: 25, y: 31, color: '#228B22'},
+            {x: 25, y: 32, color: '#228B22'},
+            {x: 24, y: 32, color: '#228B22'},
+            {x: 23, y: 33, color: '#228B22'},
+            {x: 26, y: 32, color: '#228B22'},
+            {x: 27, y: 33, color: '#228B22'},
+            {x: 25, y: 33, color: '#228B22'},
+            {x: 25, y: 34, color: '#228B22'},
+            {x: 25, y: 35, color: '#228B22'},
+            {x: 25, y: 36, color: '#228B22'},
+            {x: 25, y: 37, color: '#228B22'},
+            {x: 25, y: 38, color: '#228B22'},
+            {x: 25, y: 39, color: '#228B22'},
+            {x: 25, y: 40, color: '#228B22'},
+            {x: 25, y: 41, color: '#228B22'},
 
-        function drawNextPixel() {
-            if (pixelIndex >= pixelData.length / 4) {
-                clearInterval(drawingInterval);
-                return;
+            // Rose petals (center)
+            {x: 25, y: 29, color: '#FF0000'},
+            {x: 25, y: 28, color: '#FF0000'},
+            {x: 26, y: 29, color: '#FF0000'},
+            {x: 24, y: 29, color: '#FF0000'},
+            {x: 26, y: 28, color: '#FF0000'},
+            {x: 24, y: 28, color: '#FF0000'},
+            {x: 27, y: 29, color: '#FF0000'},
+            {x: 23, y: 29, color: '#FF0000'},
+            {x: 27, y: 28, color: '#FF0000'},
+            {x: 23, y: 28, color: '#FF0000'},
+
+            // More petals
+            {x: 25, y: 27, color: '#DC143C'},
+            {x: 26, y: 27, color: '#DC143C'},
+            {x: 24, y: 27, color: '#DC143C'},
+            {x: 27, y: 27, color: '#DC143C'},
+            {x: 23, y: 27, color: '#DC143C'},
+            {x: 28, y: 28, color: '#DC143C'},
+            {x: 22, y: 28, color: '#DC143C'},
+            {x: 28, y: 29, color: '#DC143C'},
+            {x: 22, y: 29, color: '#DC143C'},
+            {x: 29, y: 29, color: '#DC143C'},
+            {x: 21, y: 29, color: '#DC143C'},
+
+            // Outermost petals
+            {x: 25, y: 26, color: '#B22222'},
+            {x: 26, y: 26, color: '#B22222'},
+            {x: 24, y: 26, color: '#B22222'},
+            {x: 27, y: 26, color: '#B22222'},
+            {x: 23, y: 26, color: '#B22222'},
+            {x: 28, y: 27, color: '#B22222'},
+            {x: 22, y: 27, color: '#B22222'},
+            {x: 29, y: 28, color: '#B22222'},
+            {x: 21, y: 28, color: '#B22222'},
+            {x: 30, y: 28, color: '#B22222'},
+            {x: 20, y: 28, color: '#B22222'},
+            {x: 29, y: 27, color: '#B22222'},
+            {x: 21, y: 27, color: '#B22222'},
+            {x: 25, y: 25, color: '#B22222'},
+            {x: 26, y: 25, color: '#B22222'},
+            {x: 24, y: 25, color: '#B22222'},
+            {x: 27, y: 25, color: '#B22222'},
+            {x: 23, y: 25, color: '#B22222'},
+            {x: 28, y: 25, color: '#B22222'},
+            {x: 22, y: 25, color: '#B22222'},
+            {x: 29, y: 26, color: '#B22222'},
+            {x: 21, y: 26, color: '#B22222'}
+        ];
+
+        let index = 0;
+        const animationSpeed = 50; // milliseconds per pixel
+
+        function drawPixel() {
+            if (index < pixelsToDraw.length) {
+                const pixel = pixelsToDraw[index];
+                ctx.fillStyle = pixel.color;
+                ctx.fillRect(pixel.x * pixelSize, pixel.y * pixelSize, pixelSize, pixelSize);
+                index++;
+                setTimeout(drawPixel, animationSpeed);
             }
-
-            const r = pixelData[pixelIndex * 4];
-            const g = pixelData[pixelIndex * 4 + 1];
-            const b = pixelData[pixelIndex * 4 + 2];
-            const a = pixelData[pixelIndex * 4 + 3];
-
-            if (a > 0) { // Only draw non-transparent pixels
-                const x = (pixelIndex % img.width);
-                const y = Math.floor(pixelIndex / img.width);
-                
-                ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${a / 255})`;
-                ctx.fillRect(x * PIXEL_SIZE, y * PIXEL_SIZE, PIXEL_SIZE, PIXEL_SIZE);
-            }
-
-            pixelIndex++;
         }
+
+        window.onload = function() {
+            drawPixel();
+        };
     </script>
+
 </body>
 </html>
