@@ -1,82 +1,150 @@
 <!DOCTYPE html>
-<html>
+<html lang="th">
 <head>
-    <title>Bit Rendering Animation</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pixel Art ดอกกุหลาบ</title>
     <style>
         body {
-            margin: 0;
-            overflow: hidden;
-            background-color: #000;
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #f5f5f5;
+            padding: 20px;
         }
-        #canvas {
+        h1 {
+            color: #e91e63;
+            margin-bottom: 20px;
+        }
+        .canvas-container {
+            margin: 20px 0;
+            border: 2px solid #333;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+        }
+        canvas {
             display: block;
+            background-color: white;
+        }
+        .controls {
+            margin: 20px 0;
+            display: flex;
+            gap: 10px;
+        }
+        button {
+            padding: 8px 16px;
+            background-color: #e91e63;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #c2185b;
+        }
+        .color-picker {
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
     </style>
 </head>
 <body>
-    <canvas id="canvas"></canvas>
+    <h1>Pixel Art ดอกกุหลาบ</h1>
+    
+    <div class="canvas-container">
+        <canvas id="pixelCanvas" width="800" height="800"></canvas>
+    </div>
+    
+    <div class="controls">
+        <div class="color-picker">
+            <label for="colorSelect">เลือกสีดอกไม้:</label>
+            <select id="colorSelect">
+                <option value="#e91e63">สีชมพู</option>
+                <option value="#f44336">สีแดง</option>
+                <option value="#9c27b0">สีม่วง</option>
+                <option value="#2196F3">สีฟ้า</option>
+                <option value="#4CAF50">สีเขียว</option>
+            </select>
+        </div>
+        <button id="drawBtn">วาดดอกกุหลาบ</button>
+        <button id="clearBtn">ล้างภาพ</button>
+    </div>
 
     <script>
-        const canvas = document.getElementById('canvas');
+        const canvas = document.getElementById('pixelCanvas');
         const ctx = canvas.getContext('2d');
+        const drawBtn = document.getElementById('drawBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const colorSelect = document.getElementById('colorSelect');
         
-        // Set canvas to window size
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+        // ข้อมูลพิกัดดอกกุหลาบ (ตัวอย่าง)
+        // ในที่นี้ฉันจะสร้างข้อมูลตัวอย่างเนื่องจากข้อมูลที่ให้มามีแต่ลำดับตัวเลข
+        // โดยปกติข้อมูล pixel art ควรมีรูปแบบ [x,y] คู่
         
-        // Bit settings
-        const bitSize = 4;
-        const columns = Math.floor(canvas.width / bitSize);
-        const rows = Math.floor(canvas.height / bitSize);
-        const bitSpeed = 2; // Medium speed
-        
-        // Create bit data (random for demonstration)
-        const bits = [];
-        for (let i = 0; i < columns; i++) {
-            bits[i] = [];
-            for (let j = 0; j < rows; j++) {
-                bits[i][j] = {
-                    value: Math.random() > 0.5 ? 1 : 0,
-                    y: canvas.height + Math.random() * canvas.height // Start below canvas
-                };
-            }
-        }
-        
-        function animate() {
-            // Clear canvas
-            ctx.fillStyle = 'black';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        // สร้างข้อมูลตัวอย่างสำหรับดอกกุหลาบ
+        function createRosePixels() {
+            const pixels = [];
             
-            // Draw bits
-            for (let i = 0; i < columns; i++) {
-                for (let j = 0; j < rows; j++) {
-                    const bit = bits[i][j];
-                    
-                    // Move bit up
-                    bit.y -= bitSpeed;
-                    
-                    // If bit goes above top, reset to bottom
-                    if (bit.y < -bitSize) {
-                        bit.y = canvas.height + Math.random() * 100;
-                        bit.value = Math.random() > 0.5 ? 1 : 0;
-                    }
-                    
-                    // Draw bit
-                    ctx.fillStyle = bit.value ? '#0f0' : '#090';
-                    ctx.fillRect(i * bitSize, bit.y, bitSize-1, bitSize-1);
+            // สร้างข้อมูลตัวอย่าง (ในความเป็นจริงควรใช้ข้อมูลจริงจากภาพ)
+            // ตรงนี้เป็นเพียงตัวอย่างเท่านั้น
+            for (let i = 0; i < 200; i++) {
+                // สร้างพิกัดแบบสุ่มเพื่อวัตถุประสงค์ในการสาธิต
+                const x = Math.floor(Math.random() * 100) + 350;
+                const y = Math.floor(Math.random() * 100) + 350;
+                pixels.push([x, y]);
+            }
+            
+            // เพิ่มจุดศูนย์กลางดอกไม้
+            for (let i = 340; i < 360; i++) {
+                for (let j = 340; j < 360; j++) {
+                    pixels.push([i, j]);
                 }
             }
             
-            requestAnimationFrame(animate);
+            return pixels;
         }
         
-        animate();
+        function drawRose() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            const flowerColor = colorSelect.value;
+            const pixels = createRosePixels();
+            
+            // วาดแต่ละพิกเซล
+            ctx.fillStyle = flowerColor;
+            pixels.forEach(pixel => {
+                const [x, y] = pixel;
+                ctx.fillRect(x, y, 2, 2);
+            });
+            
+            // วาดก้านดอกไม้
+            ctx.fillStyle = '#4CAF50';
+            for (let y = 400; y < 600; y++) {
+                ctx.fillRect(350, y, 10, 2);
+            }
+            
+            // วาดใบไม้
+            drawLeaf(330, 450, 30, 80);
+            drawLeaf(390, 500, 30, 80);
+        }
         
-        // Handle window resize
-        window.addEventListener('resize', function() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        });
+        function drawLeaf(x, y, width, height) {
+            ctx.fillStyle = '#4CAF50';
+            ctx.beginPath();
+            ctx.ellipse(x, y, width, height, Math.PI/4, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        
+        function clearCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+        
+        drawBtn.addEventListener('click', drawRose);
+        clearBtn.addEventListener('click', clearCanvas);
+        
+        // วาดภาพเมื่อโหลดหน้าเว็บ
+        window.addEventListener('load', drawRose);
     </script>
 </body>
 </html>
