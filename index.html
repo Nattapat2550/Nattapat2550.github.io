@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>ดอกกุหลาบ 128bit สวย พร้อมหัวใจ 4 ดวง ขยับ แตกได้</title>
+<title>ดอกกุหลาบ Pixel Art 128x128 พร้อมหัวใจ</title>
 <style>
   body {
     margin:0; padding:0;
@@ -18,7 +18,7 @@
     border: 5px solid #ff1e7f;
     border-radius: 20px;
     background: #222;
-    box-shadow: 0 0 20px #ff1e7faa;
+    box-shadow: 0 0 25px #ff1e7faa;
   }
 </style>
 </head>
@@ -29,7 +29,6 @@
 const PIXEL_SIZE = 4;
 const WIDTH = 128;
 const HEIGHT = 128;
-
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 ctx.imageSmoothingEnabled = false;
@@ -37,38 +36,84 @@ ctx.imageSmoothingEnabled = false;
 canvas.style.width = canvas.width + 'px';
 canvas.style.height = canvas.height + 'px';
 
-// ฟังก์ชันไล่สีดอกกุหลาบแบบมี layering และไล่โทนสีละเอียดขึ้น
-function getRoseColor(x, y) {
-  const cx = WIDTH/2;
-  const cy = HEIGHT/2;
-  const dx = x - cx;
-  const dy = y - cy;
-  const dist = Math.sqrt(dx*dx + dy*dy);
+// === ข้อมูล pixel ดอกกุหลาบ 128x128 (simplified & stylized) ===
+// ผมใช้ฟังก์ชันเกลี่ยสีหลายจุด และเพิ่ม shape เป็น petal ซ้อนๆ เพื่อให้เห็นเป็นดอกกุหลาบ
 
-  if(dist > 55) return null;
+// กำหนดสีหลัก
+const COLORS = {
+  darkRed: [150, 20, 30],
+  red: [220, 40, 60],
+  pink: [255, 110, 140],
+  lightPink: [255, 160, 170],
+  green: [20, 100, 30],
+  darkGreen: [10, 50, 20],
+  transparent: null,
+};
 
-  // โทนสีหลายเลเยอร์ ไล่สีลึกลงไป
-  if(dist < 10) return {r: 190, g: 30, b: 45, a:255};         // แดงเข้มมาก
-  if(dist < 20) return {r: 230, g: 40, b: 70, a:255};         // แดงสด
-  if(dist < 30) return {r: 255, g: 80, b: 130, a:255};        // ชมพูสดใส
-  if(dist < 40) return {r: 235, g: 120, b: 150, a:255};       // ชมพูอมม่วง
-  if(dist < 50) return {r: 215, g: 70, b: 120, a:255};        // ชมพูเข้ม
-  return null;
+// ฟังก์ชันช่วยคำนวณระยะ Euclidean
+function dist(x1,y1,x2,y2) {
+  return Math.sqrt((x1-x2)**2 + (y1-y2)**2);
 }
 
-// สร้าง array pixel ของดอกกุหลาบ
+// สร้าง pixel array ดอกกุหลาบ
 let rosePixels = [];
+
+// กำหนดจุดศูนย์กลางดอกกุหลาบ
+const cx = WIDTH/2;
+const cy = HEIGHT/2;
+
+// ฟังก์ชันวาด petal รูปวงรีแนวนอน
+function isInPetal(x, y, centerX, centerY, radiusX, radiusY, angle) {
+  // หมุนพิกัด x,y ตามมุม angle
+  let cosA = Math.cos(angle);
+  let sinA = Math.sin(angle);
+  let dx = x - centerX;
+  let dy = y - centerY;
+  let rx = cosA * dx + sinA * dy;
+  let ry = -sinA * dx + cosA * dy;
+
+  return (rx*rx)/(radiusX*radiusX) + (ry*ry)/(radiusY*radiusY) <= 1;
+}
+
+// วาดกลีบดอก (petal) 6 กลีบรอบๆ จุดกลาง
 for(let y=0; y<HEIGHT; y++) {
   for(let x=0; x<WIDTH; x++) {
-    let c = getRoseColor(x,y);
-    if(c) rosePixels.push({x,y,color:c});
+    let color = COLORS.transparent;
+    let d = dist(x,y,cx,cy);
+
+    // ใบฐาน
+    if(d > 48 && d < 60 && x > cx - 30 && x < cx + 30 && y > cy + 40) {
+      color = COLORS.darkGreen;
+    } else if(d > 40 && d < 60 && y > cy + 30) {
+      color = COLORS.green;
+    }
+
+    // กลีบดอก 6 กลีบ ใช้ ellipse หมุนรอบดอก
+    const petals = 6;
+    for(let i=0; i<petals; i++) {
+      let angle = (i * 2 * Math.PI) / petals;
+      if(isInPetal(x,y,cx,cy, 30, 60, angle)) {
+        // ไล่สีตามระยะจากกลางกลีบ petal
+        let distCenterPetal = dist(x,y, cx + 30*Math.cos(angle), cy + 30*Math.sin(angle));
+        if(distCenterPetal < 15) color = COLORS.darkRed;
+        else if(distCenterPetal < 25) color = COLORS.red;
+        else color = COLORS.pink;
+      }
+    }
+
+    // ใจกลางดอก กึ่งกลางวงกลมเล็กสีแดงเข้ม
+    if(d < 12) {
+      if(d < 6) color = COLORS.darkRed;
+      else color = COLORS.red;
+    }
+
+    if(color !== COLORS.transparent) {
+      rosePixels.push({x, y, color: {r: color[0], g: color[1], b: color[2], a:255}});
+    }
   }
 }
 
-// เก็บ pixel ที่วาดแล้ว (วาดค้างไว้ไม่หาย)
-let drawnPixels = new Set();
-
-// วาดหัวใจ pixel art ขนาด 6x6 pixel
+// หัวใจ pixel art 6x6 (เหมือนเดิม)
 const heartPattern = [
   [0,1,1,0,0,0],
   [1,1,1,1,0,0],
@@ -178,7 +223,7 @@ class Particle {
   }
 }
 
-// สร้างหัวใจ 4 ดวงรอบดอกกุหลาบ
+// สร้างหัวใจ 4 ดวง รอบดอกกุหลาบ
 const hearts = [];
 const centerX = WIDTH / 2;
 const centerY = HEIGHT / 2;
@@ -193,6 +238,7 @@ heartOffsets.forEach(offset => {
 });
 
 let roseIndex = 0;
+let drawnPixels = new Set();
 
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -203,7 +249,7 @@ function draw() {
     h.draw(ctx);
   });
 
-  // วาดดอกกุหลาบทีละบิตและเก็บ pixel ที่วาดแล้ว
+  // วาดดอกกุหลาบทีละนิด เก็บ pixel ที่วาดแล้วให้ไม่หาย
   let pixelsDrawnThisFrame = 0;
   while(pixelsDrawnThisFrame < 10 && roseIndex < rosePixels.length) {
     const p = rosePixels[roseIndex];
@@ -217,7 +263,7 @@ function draw() {
     roseIndex++;
   }
 
-  // วาด pixel ที่วาดไปแล้วทั้งหมดค้างไว้ (ไม่ให้หาย)
+  // วาด pixel ที่วาดไปแล้วทั้งหมด (เพื่อให้ค้าง)
   drawnPixels.forEach(key => {
     const [x, y] = key.split(',').map(Number);
     const p = rosePixels.find(px => px.x === x && px.y === y);
