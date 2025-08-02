@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>🌹 Emoji Pixel Render</title>
+  <meta charset="UTF-8" />
+  <title>🌹 Emoji Pixel Render High Detail</title>
   <style>
     body {
       background: #ffe6f0;
@@ -11,12 +11,14 @@
       align-items: center;
       justify-content: center;
       height: 100vh;
+      margin: 0;
     }
     canvas {
       image-rendering: pixelated;
       width: 512px;
       height: 512px;
-      border: 3px solid #cc6699;
+      border: 4px solid #cc6699;
+      background: white;
     }
     h1 {
       color: #cc3366;
@@ -26,44 +28,42 @@
   </style>
 </head>
 <body>
-  <h1>🌹 Emoji Rendered as Pixels</h1>
-  <canvas id="canvas" width="128" height="128"></canvas>
+  <h1>🌹 Pixel Emoji Render (256x256)</h1>
+  <canvas id="canvas" width="256" height="256"></canvas>
 
   <script>
-    const canvas = document.getElementById('canvas');
-    const ctx = canvas.getContext('2d');
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext("2d");
 
     const img = new Image();
-    // ใช้ emoji 🌹 จาก Twemoji หรือ Google Noto
     img.crossOrigin = "anonymous";
-    img.src = "https://twemoji.maxcdn.com/v/latest/72x72/1f339.png";
+
+    // ใช้ emoji 🌹 แบบ 256x256 px จาก Twemoji CDN
+    img.src = "https://twemoji.maxcdn.com/v/latest/256x256/1f339.png";
 
     img.onload = () => {
-      // วาด emoji ลงใน canvas ชั่วคราว
-      const tempCanvas = document.createElement('canvas');
-      tempCanvas.width = 128;
-      tempCanvas.height = 128;
-      const tempCtx = tempCanvas.getContext('2d');
-      tempCtx.drawImage(img, 0, 0, 128, 128);
+      const tempCanvas = document.createElement("canvas");
+      tempCanvas.width = 256;
+      tempCanvas.height = 256;
+      const tempCtx = tempCanvas.getContext("2d");
+      tempCtx.drawImage(img, 0, 0, 256, 256);
 
-      // ดึง pixel ออกมาทั้งหมด
-      const imgData = tempCtx.getImageData(0, 0, 128, 128).data;
+      const imgData = tempCtx.getImageData(0, 0, 256, 256).data;
       const pixels = [];
 
-      for (let y = 0; y < 128; y++) {
-        for (let x = 0; x < 128; x++) {
-          const i = (y * 128 + x) * 4;
+      for (let y = 0; y < 256; y++) {
+        for (let x = 0; x < 256; x++) {
+          const i = (y * 256 + x) * 4;
           const r = imgData[i];
           const g = imgData[i + 1];
           const b = imgData[i + 2];
           const a = imgData[i + 3];
-          if (a > 0) {
+          if (a > 10) { // กรอง pixel โปร่งใสน้อยกว่า 10 ออก
             pixels.push({ x, y, color: `rgba(${r},${g},${b},${a / 255})` });
           }
         }
       }
 
-      // วาดทีละพิกเซลแบบ animation
       let i = 0;
       function draw() {
         if (i < pixels.length) {
@@ -71,7 +71,7 @@
           ctx.fillStyle = p.color;
           ctx.fillRect(p.x, p.y, 1, 1);
           i++;
-          if (i % 100 === 0) setTimeout(draw, 1); // delay เล็กน้อยเพื่อ animation
+          if (i % 300 === 0) setTimeout(draw, 1);
           else draw();
         }
       }
