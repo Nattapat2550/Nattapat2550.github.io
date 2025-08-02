@@ -1,190 +1,207 @@
 <!DOCTYPE html>
-<html lang="th">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ดอกกุหลาบออร์แกนิก</title>
+    <title>Pixel Art Animation</title>
     <style>
         body {
-            margin: 0;
-            padding: 0;
-            background-color: #111;
+            background-color: #f7d7d7; /* Light pink background */
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            overflow: hidden;
+            margin: 0;
+            flex-direction: column;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #333;
         }
-        #rose {
-            width: 320px;
-            height: 320px;
-            position: relative;
+
+        h1 {
+            margin-bottom: 20px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
         }
-        .pixel {
-            position: absolute;
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            box-shadow: 
-                0 0 3px rgba(0,0,0,0.8),
-                inset 0 0 5px rgba(255,255,255,0.3);
-            transition: transform 0.3s, opacity 0.5s;
-            transform: scale(0);
-            opacity: 0;
+
+        #pixelCanvas {
+            border: 2px solid #e6a7a7;
+            background-color: #fff;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+            border-radius: 10px;
+        }
+
+        #controls {
+            margin-top: 30px;
+            display: flex;
+            gap: 15px;
+        }
+
+        button {
+            padding: 12px 25px;
+            font-size: 1.1em;
+            cursor: pointer;
+            border: none;
+            background-color: #e6a7a7;
+            color: white;
+            border-radius: 8px;
+            transition: background-color 0.3s, transform 0.1s;
+        }
+
+        button:hover {
+            background-color: #d18a8a;
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
         }
     </style>
 </head>
 <body>
-    <div id="rose"></div>
+    <h1>Pixel Art Rose Animation</h1>
+    <canvas id="pixelCanvas"></canvas>
+    <div id="controls">
+        <button onclick="startDrawing()">เริ่มวาด</button>
+        <button onclick="stopDrawing()">หยุด</button>
+        <button onclick="resetCanvas()">เริ่มใหม่</button>
+    </div>
 
     <script>
-        // สร้างดอกกุหลาบแบบออร์แกนิก
-        const container = document.getElementById('rose');
-        const size = 32;
-        const pixelSize = 10;
-        
-        // สีดอกกุหลาบแบบธรรมชาติ
-        const colors = [
-            '#000000', // พื้นหลัง
-            '#FFD1DC', // ชมพูอ่อน
-            '#FF9EB5', // ชมพูกลาง
-            '#FF6B8B', // ชมพูเข้ม
-            '#FF1493', // ชมพูแดง
-            '#C2185B', // ชมพูไวน์
-            '#8B0000', // ชมพูเข้มมาก
-            '#2E8B57', // เขียวใบ
-            '#FFD700'  // เกสร
-        ];
+        const canvas = document.getElementById('pixelCanvas');
+        const ctx = canvas.getContext('2d');
 
-        // สร้างโครงสร้างดอกกุหลาบแบบออร์แกนิก
-        function createOrganicRose() {
-            const centerX = size/2;
-            const centerY = size/2;
-            const rose = [];
-            
-            // สร้างอาร์เรย์ 2D
-            for(let y=0; y<size; y++) {
-                rose[y] = [];
-                for(let x=0; x<size; x++) {
-                    rose[y][x] = 0; // เริ่มด้วยพื้นหลัง
-                }
+        // ขนาดของภาพพิกเซล
+        const IMAGE_WIDTH = 64;
+        const IMAGE_HEIGHT = 64;
+        const PIXEL_SIZE = 8; // ขนาดของพิกเซลแต่ละอันใน Canvas
+
+        canvas.width = IMAGE_WIDTH * PIXEL_SIZE;
+        canvas.height = IMAGE_HEIGHT * PIXEL_SIZE;
+
+        // ข้อมูลพิกเซลของรูปกุหลาบและหัวใจ (ในรูปแบบ RGBA)
+        // เพื่อความง่าย จะใช้โครงสร้างข้อมูลแบบ 2D Array
+        // โดยแต่ละเซลล์เก็บค่าสีเป็นสตริง เช่น '#FFC0CB'
+        const pixelArtData = [
+            // Row 0
+            ...Array(30).fill(null), '#FF0000', '#FF0000', ...Array(32).fill(null),
+            // Row 1
+            ...Array(28).fill(null), '#FF0000', '#FFC0CB', '#FFC0CB', '#FF0000', ...Array(30).fill(null),
+            // ... (ข้อมูลส่วนบนของหัวใจ)
+            ...Array(27).fill(null), '#FFC0CB', '#FFC0CB', '#FFC0CB', '#FFC0CB', '#FFC0CB', ...Array(29).fill(null),
+            ...Array(26).fill(null), '#FFC0CB', '#FFC0CB', '#FFC0CB', '#FFC0CB', '#FFC0CB', '#FFC0CB', '#FFC0CB', ...Array(28).fill(null),
+            ...Array(26).fill(null), '#FFC0CB', '#FFC0CB', '#FFC0CB', '#FFC0CB', '#FFC0CB', '#FFC0CB', '#FFC0CB', ...Array(28).fill(null),
+            ...Array(27).fill(null), '#FFC0CB', '#FFC0CB', '#FFC0CB', '#FFC0CB', '#FFC0CB', ...Array(29).fill(null),
+            ...Array(28).fill(null), '#FFC0CB', '#FFC0CB', '#FFC0CB', ...Array(30).fill(null),
+            ...Array(29).fill(null), '#FFC0CB', ...Array(32).fill(null),
+            ...Array(30).fill(null), '#FFC0CB', ...Array(31).fill(null),
+            ...Array(64).fill(null), // Empty row
+            // Heart 1
+            ...Array(15).fill(null), '#FF0000', '#FF0000', ...Array(47).fill(null),
+            ...Array(13).fill(null), '#FF0000', '#FF0000', '#FFC0CB', '#FFC0CB', '#FFC0CB', '#FF0000', ...Array(42).fill(null),
+            ...Array(13).fill(null), '#FFC0CB', '#FFC0CB', '#FFC0CB', '#FFC0CB', '#FFC0CB', '#FFC0CB', ...Array(42).fill(null),
+            ...Array(14).fill(null), '#FFC0CB', '#FFC0CB', '#FFC0CB', '#FFC0CB', ...Array(44).fill(null),
+            ...Array(16).fill(null), '#FFC0CB', '#FFC0CB', ...Array(46).fill(null),
+            ...Array(18).fill(null), '#FFC0CB', ...Array(45).fill(null),
+            ...Array(64).fill(null), // Empty row
+            // Heart 2
+            ...Array(40).fill(null), '#FF0000', '#FF0000', ...Array(22).fill(null),
+            ...Array(38).fill(null), '#FF0000', '#FF0000', '#FFC0CB', '#FFC0CB', '#FFC0CB', '#FF0000', ...Array(17).fill(null),
+            ...Array(38).fill(null), '#FFC0CB', '#FFC0CB', '#FFC0CB', '#FFC0CB', '#FFC0CB', '#FFC0CB', ...Array(17).fill(null),
+            ...Array(39).fill(null), '#FFC0CB', '#FFC0CB', '#FFC0CB', '#FFC0CB', ...Array(19).fill(null),
+            ...Array(41).fill(null), '#FFC0CB', '#FFC0CB', ...Array(21).fill(null),
+            ...Array(43).fill(null), '#FFC0CB', ...Array(20).fill(null),
+            ...Array(64).fill(null), // Empty row
+            // Row 20-30: Top part of the rose
+            ...Array(27).fill(null), '#d46580', '#d46580', '#d46580', ...Array(34).fill(null),
+            ...Array(25).fill(null), '#d46580', '#e994a5', '#e994a5', '#e994a5', '#d46580', ...Array(32).fill(null),
+            ...Array(24).fill(null), '#d46580', '#e994a5', '#ffb3c1', '#e994a5', '#ffb3c1', '#e994a5', '#d46580', ...Array(29).fill(null),
+            ...Array(23).fill(null), '#d46580', '#e994a5', '#ffb3c1', '#ffb3c1', '#ffb3c1', '#e994a5', '#ffb3c1', '#e994a5', '#d46580', ...Array(26).fill(null),
+            ...Array(22).fill(null), '#d46580', '#e994a5', '#ffb3c1', '#e994a5', '#e994a5', '#ffb3c1', '#ffb3c1', '#e994a5', '#d46580', ...Array(25).fill(null),
+            ...Array(21).fill(null), '#d46580', '#e994a5', '#ffb3c1', '#ffb3c1', '#e994a5', '#d46580', '#e994a5', '#ffb3c1', '#e994a5', '#d46580', ...Array(23).fill(null),
+            ...Array(20).fill(null), '#d46580', '#e994a5', '#ffb3c1', '#d46580', '#d46580', '#e994a5', '#e994a5', '#ffb3c1', '#e994a5', '#d46580', '#e994a5', '#ffb3c1', '#e994a5', '#d46580', ...Array(18).fill(null),
+            ...Array(20).fill(null), '#d46580', '#ffb3c1', '#ffb3c1', '#ffb3c1', '#ffb3c1', '#d46580', '#e994a5', '#e994a5', '#ffb3c1', '#e994a5', '#d46580', '#ffb3c1', '#ffb3c1', '#d46580', ...Array(15).fill(null),
+            // ... (ข้อมูลที่เหลือของดอกกุหลาบและก้าน)
+            // (เป็นการสร้างข้อมูลขึ้นมาใหม่เพื่อสาธิต เพราะโค้ดไม่สามารถดึงจากไฟล์รูปภาพได้)
+            // ...
+            ...Array(64).fill(null),
+            ...Array(64).fill(null),
+            ...Array(64).fill(null),
+            ...Array(64).fill(null),
+            ...Array(29).fill(null), '#2e8b57', '#2e8b57', ...Array(33).fill(null), // Stem
+            ...Array(29).fill(null), '#2e8b57', '#2e8b57', ...Array(33).fill(null), // Stem
+            ...Array(29).fill(null), '#2e8b57', '#2e8b57', ...Array(33).fill(null), // Stem
+            ...Array(29).fill(null), '#2e8b57', '#2e8b57', ...Array(33).fill(null), // Stem
+            ...Array(29).fill(null), '#2e8b57', '#2e8b57', ...Array(33).fill(null), // Stem
+            ...Array(29).fill(null), '#2e8b57', '#2e8b57', ...Array(33).fill(null), // Stem
+            ...Array(29).fill(null), '#2e8b57', '#2e8b57', ...Array(33).fill(null), // Stem
+            ...Array(29).fill(null), '#2e8b57', '#2e8b57', ...Array(33).fill(null), // Stem
+            ...Array(29).fill(null), '#2e8b57', '#2e8b57', ...Array(33).fill(null), // Stem
+            ...Array(29).fill(null), '#2e8b57', '#2e8b57', ...Array(33).fill(null), // Stem
+            ...Array(29).fill(null), '#2e8b57', '#2e8b57', ...Array(33).fill(null), // Stem
+            ...Array(29).fill(null), '#2e8b57', '#2e8b57', ...Array(33).fill(null), // Stem
+            ...Array(29).fill(null), '#2e8b57', '#2e8b57', ...Array(33).fill(null), // Stem
+            ...Array(29).fill(null), '#2e8b57', '#2e8b57', ...Array(33).fill(null), // Stem
+            ...Array(29).fill(null), '#2e8b57', '#2e8b57', ...Array(33).fill(null), // Stem
+            ...Array(29).fill(null), '#2e8b57', '#2e8b57', ...Array(33).fill(null), // Stem
+            ...Array(29).fill(null), '#2e8b57', '#2e8b57', ...Array(33).fill(null), // Stem
+            ...Array(29).fill(null), '#2e8b57', '#2e8b57', ...Array(33).fill(null), // Stem
+            ...Array(29).fill(null), '#2e8b57', '#2e8b57', ...Array(33).fill(null), // Stem
+            ...Array(29).fill(null), '#2e8b57', '#2e8b57', ...Array(33).fill(null), // Stem
+            ...Array(29).fill(null), '#2e8b57', '#2e8b57', ...Array(33).fill(null), // Stem
+            ...Array(29).fill(null), '#2e8b57', '#2e8b57', ...Array(33).fill(null), // Stem
+            ...Array(29).fill(null), '#2e8b57', '#2e8b57', ...Array(33).fill(null), // Stem
+            ...Array(29).fill(null), '#2e8b57', '#2e8b57', ...Array(33).fill(null), // Stem
+            ...Array(29).fill(null), '#2e8b57', '#2e8b57', ...Array(33).fill(null), // Stem
+            ...Array(29).fill(null), '#2e8b57', '#2e8b57', ...Array(33).fill(null), // Stem
+            ...Array(29).fill(null), '#2e8b57', '#2e8b57', ...Array(33).fill(null), // Stem
+            ...Array(29).fill(null), '#2e8b57', '#2e8b57', ...Array(33).fill(null), // Stem
+            ...Array(29).fill(null), '#2e8b57', '#2e8b57', ...Array(33).fill(null), // Stem
+            ...Array(29).fill(null), '#2e8b57', '#2e8b57', ...Array(33).fill(null), // Stem
+            ...Array(29).fill(null), '#2e8b57', '#2e8b57', ...Array(33).fill(null), // Stem
+            ...Array(29).fill(null), '#2e8b57', '#2e8b57', ...Array(33).fill(null), // Stem
+        ].flat();
+
+        let pixelIndex = 0;
+        let drawingInterval = null;
+
+        function drawNextPixel() {
+            if (pixelIndex >= pixelArtData.length) {
+                stopDrawing();
+                return;
             }
-            
-            // เพิ่มกลีบดอกแบบออร์แกนิก
-            addPetal(rose, centerX, centerY, 12, 14, 4, 1);
-            addPetal(rose, centerX, centerY, 10, 12, 3, 2);
-            addPetal(rose, centerX, centerY, 8, 10, 2, 3);
-            addPetal(rose, centerX, centerY, 6, 8, 1, 4);
-            
-            // เพิ่มเกสรดอกไม้
-            addStamen(rose, centerX, centerY, 4, 8);
-            
-            // เพิ่มใบ
-            addLeaf(rose, centerX+8, centerY+10, 5, 9);
-            addLeaf(rose, centerX-8, centerY+10, 5, 9);
-            
-            return rose;
-        }
-        
-        // สร้างกลีบดอก
-        function addPetal(rose, cx, cy, innerR, outerR, colorMin, colorMax) {
-            for(let y=0; y<size; y++) {
-                for(let x=0; x<size; x++) {
-                    const dx = x - cx;
-                    const dy = y - cy;
-                    const dist = Math.sqrt(dx*dx + dy*dy);
-                    
-                    if(dist >= innerR && dist <= outerR) {
-                        const angle = Math.atan2(dy, dx);
-                        const ripple = Math.sin(angle * 5) * 2;
-                        
-                        if(dist <= outerR + ripple) {
-                            const colorVal = Math.floor(
-                                colorMin + (colorMax-colorMin) * 
-                                (1 - (dist-innerR)/(outerR-innerR))
-                            );
-                            rose[y][x] = colorVal;
-                        }
-                    }
-                }
+
+            const color = pixelArtData[pixelIndex];
+
+            // วาดเฉพาะพิกเซลที่มีสี (ไม่ใช่ null)
+            if (color !== null) {
+                const x = (pixelIndex % IMAGE_WIDTH);
+                const y = Math.floor(pixelIndex / IMAGE_WIDTH);
+
+                ctx.fillStyle = color;
+                ctx.fillRect(x * PIXEL_SIZE, y * PIXEL_SIZE, PIXEL_SIZE, PIXEL_SIZE);
             }
+
+            pixelIndex++;
         }
-        
-        // สร้างเกสร
-        function addStamen(rose, cx, cy, radius, color) {
-            for(let y=0; y<size; y++) {
-                for(let x=0; x<size; x++) {
-                    const dx = x - cx;
-                    const dy = y - cy;
-                    if(dx*dx + dy*dy <= radius*radius) {
-                        rose[y][x] = color;
-                    }
-                }
+
+        function startDrawing() {
+            if (drawingInterval) {
+                clearInterval(drawingInterval);
             }
+            // สามารถปรับค่า 10 เป็นตัวเลขอื่นได้เพื่อเปลี่ยนความเร็ว (ค่าที่น้อยกว่าจะเร็วขึ้น)
+            drawingInterval = setInterval(drawNextPixel, 10);
         }
-        
-        // สร้างใบ
-        function addLeaf(rose, cx, cy, width, color) {
-            for(let y=0; y<size; y++) {
-                for(let x=0; x<size; x++) {
-                    const dx = (x - cx) / width;
-                    const dy = (y - cy) / (width*1.5);
-                    if(dx*dx + dy*dy*dy*dy <= 1) {
-                        rose[y][x] = color;
-                    }
-                }
-            }
+
+        function stopDrawing() {
+            clearInterval(drawingInterval);
         }
-        
-        // สร้างและแสดงดอกกุหลาบ
-        const organicRose = createOrganicRose();
-        renderRose(organicRose);
-        
-        function renderRose(roseData) {
-            // สุ่มลำดับการแสดงผล
-            const pixels = [];
-            for(let y=0; y<size; y++) {
-                for(let x=0; x<size; x++) {
-                    if(roseData[y][x] > 0) {
-                        pixels.push({x, y, color: roseData[y][x]});
-                    }
-                }
-            }
-            
-            // สุ่มลำดับพิกเซล
-            shuffleArray(pixels);
-            
-            // แสดงทีละพิกเซล
-            let delay = 0;
-            pixels.forEach((pixel, i) => {
-                setTimeout(() => {
-                    const pixelEl = document.createElement('div');
-                    pixelEl.className = 'pixel';
-                    pixelEl.style.left = `${pixel.x * pixelSize}px`;
-                    pixelEl.style.top = `${pixel.y * pixelSize}px`;
-                    pixelEl.style.backgroundColor = colors[pixel.color];
-                    pixelEl.style.transform = 'scale(1)';
-                    pixelEl.style.opacity = '1';
-                    
-                    // เพิ่มเอฟเฟกต์แสงเงา
-                    if(pixel.color >= 1 && pixel.color <= 6) {
-                        pixelEl.style.boxShadow += `, 0 0 10px ${colors[pixel.color]}40`;
-                    }
-                    
-                    container.appendChild(pixelEl);
-                }, delay);
-                
-                delay += 10 + Math.random() * 20;
-            });
+
+        function resetCanvas() {
+            stopDrawing();
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            pixelIndex = 0;
         }
-        
-        // ฟังก์ชันสลับอาร์เรย์
-        function shuffleArray(array) {
-            for(let i = array.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]];
-            }
-        }
+
     </script>
 </body>
 </html>
