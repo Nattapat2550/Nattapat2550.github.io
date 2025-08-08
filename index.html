@@ -2,108 +2,108 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>แสดงรูปภาพทีละพิกเซล</title>
+    <title>ดอกกุหลาบพิกเซลอาร์ต</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            margin: 0;
-            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
             background-color: #f0f0f0;
-        }
-        #container {
-            margin: 0 auto;
-            max-width: 800px;
-            background-color: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            font-family: Arial, sans-serif;
         }
         #canvas {
-            border: 1px solid #ddd;
-            margin: 20px auto;
-            display: block;
-            background-color: black;
-        }
-        #progress {
-            margin-top: 10px;
-            font-size: 14px;
-            color: #666;
+            border: 2px solid #333;
+            background-color: white;
+            image-rendering: pixelated;
         }
     </style>
 </head>
 <body>
-    <div id="container">
-        <h1>แสดงรูปภาพทีละพิกเซล</h1>
-        <canvas id="canvas"></canvas>
-        <div id="progress">กำลังเตรียมภาพ...</div>
-    </div>
+    <canvas id="canvas" width="640" height="640"></canvas>
 
     <script>
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
-        const progress = document.getElementById('progress');
-        
-        let imageData = null;
-        let pixelIndex = 0;
-        let animationId = null;
-        let speed = 100; // จำนวนพิกเซลที่แสดงต่อเฟรม
-        
-        // สร้างรูปภาพตัวอย่างแบบไดนามิก (สีสันสวยงาม)
-        const sampleImage = new Image();
-        sampleImage.onload = function() {
-            // ตั้งค่าขนาด Canvas ให้เท่ากับรูปภาพ
-            canvas.width = sampleImage.width;
-            canvas.height = sampleImage.height;
+        const pixelSize = 10;
+
+        // โครงสร้างพิกเซลดอกกุหลาบ
+        const rosePixels = [
+            // แถวที่ 1-10 (ส่วนบนสุดของดอก)
+            Array(64).fill(0),
+            Array(64).fill(0),
+            Array(64).fill(0),
+            Array(64).fill(0),
+            ...[
+                [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+            ],
             
-            // วาดภาพทั้งภาพแบบมัวๆ ก่อน (เป็นพื้นหลัง)
-            ctx.filter = 'blur(10px)';
-            ctx.drawImage(sampleImage, 0, 0);
-            ctx.filter = 'none';
-            
-            // เก็บข้อมูลพิกเซล
-            ctx.drawImage(sampleImage, 0, 0);
-            imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            pixelIndex = 0;
-            progress.textContent = `กำลังแสดงพิกเซล: 0/${canvas.width * canvas.height}`;
-            
-            // เริ่มแสดงพิกเซลทีละจุด
-            animate();
-        };
-        
-        // สร้างรูปภาพตัวอย่าง (สีสันสวยงาม)
-        sampleImage.src = 'IMG_4050.png'        
-        function animate() {
-            if (!imageData) return;
-            
-            // แสดงพิกเซลจำนวน 'speed' พิกเซลต่อเฟรม
-            for (let i = 0; i < speed && pixelIndex < imageData.data.length / 4; i++) {
-                const x = pixelIndex % canvas.width;
-                const y = Math.floor(pixelIndex / canvas.width);
-                
-                const index = (y * canvas.width + x) * 4;
-                const r = imageData.data[index];
-                const g = imageData.data[index + 1];
-                const b = imageData.data[index + 2];
-                const a = imageData.data[index + 3] / 255;
-                
-                ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${a})`;
-                ctx.fillRect(x, y, 1, 1);
-                
-                pixelIndex++;
+            // แถวที่ 11-30 (กลีบดอกชั้นใน)
+            ...[...Array(20)].map(() => {
+                const row = Array(64).fill(0);
+                for (let i = 20; i < 44; i++) {
+                    row[i] = 1; // กลีบดอกสีชมพู
+                }
+                return row;
+            }),
+
+            // แถวที่ 31-40 (กลีบดอกชั้นนอก)
+            ...[...Array(10)].map(() => {
+                const row = Array(64).fill(0);
+                for (let i = 15; i < 49; i++) {
+                    row[i] = 1; // กลีบดอกสีชมพูเข้ม
+                }
+                return row;
+            }),
+
+            // แถวที่ 41-50 (ก้านดอก)
+            ...[...Array(10)].map(() => {
+                const row = Array(64).fill(0);
+                row[32] = 2; // ก้านดอกสีเขียว
+                row[31] = 2;
+                row[33] = 2;
+                return row;
+            }),
+
+            // แถวที่ 51-64 (ส่วนล่างสุด)
+            ...[...Array(14)].map(() => {
+                const row = Array(64).fill(0);
+                for (let i = 30; i < 34; i++) {
+                    row[i] = 2; // ส่วนล่างของก้านดอก
+                }
+                return row;
+            })
+        ];
+
+        function drawPixel(x, y, color) {
+            switch(color) {
+                case 0: ctx.fillStyle = '#f0f0f0'; break; // พื้นหลัง
+                case 1: ctx.fillStyle = '#FF69B4'; break; // กลีบดอกสีชมพู
+                case 2: ctx.fillStyle = '#228B22'; break; // ก้านดอกสีเขียว
             }
-            
-            progress.textContent = `กำลังแสดงพิกเซล: ${pixelIndex}/${canvas.width * canvas.height} (${Math.round((pixelIndex / (canvas.width * canvas.height)) * 100)}%)`;
-            
-            if (pixelIndex < canvas.width * canvas.height) {
-                animationId = requestAnimationFrame(animate);
-            } else {
-                progress.textContent = "แสดงภาพเสร็จสมบูรณ์!";
-            }
+            ctx.fillRect(x * pixelSize, y * pixelSize, pixelSize, pixelSize);
         }
+
+        function drawRose() {
+            let currentRow = 0;
+
+            function drawNextRow() {
+                if (currentRow < rosePixels.length) {
+                    for (let x = 0; x < 64; x++) {
+                        drawPixel(x, currentRow, rosePixels[currentRow][x]);
+                    }
+                    currentRow++;
+                    setTimeout(drawNextRow, 50); // วาดทีละแถวห่างกัน 50 มิลลิวินาที
+                }
+            }
+
+            drawNextRow();
+        }
+
+        // เริ่มวาดเมื่อโหลดหน้าเว็บ
+        window.onload = drawRose;
     </script>
 </body>
 </html>
